@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Narx-solishtir - Narx va Sifat Tahlili</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            max-width: 550px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-sizing: border-box;
+        }
+
+        h1 { 
+            margin-top: 0; 
+            color: #38bdf8;
+            font-size: 24px; 
+            text-align: center; 
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 14px;
+            border-radius: 10px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: transform 0.2s, opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        button:hover { 
+            opacity: 0.95; 
+            transform: translateY(-1px);
+        }
+
+        .product-card {
+            background: rgba(51, 65, 85, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: #fb7185;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .store-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            padding: 6px 0;
+            gap: 10px;
+        }
+
+        .badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 6px;
+            white-space: nowrap;
+        }
+
+        .stars {
+            color: #facc15;
+            font-size: 13px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .reviews-section {
+            margin-top: 8px;
+            font-size: 13px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+        }
+
+        .review-item {
+            color: #cbd5e1;
+            font-style: italic;
+        }
+
+        .add-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 25px;
+            padding-top: 20px;
+        }
+
+        .add-section h3 { 
+            font-size: 16px; 
+            color: #e2e8f0; 
+            margin-top: 0; 
+            margin-bottom: 15px;
+        }
+
+        /* --- RESPONSIVE MEDIA QUERIES (Telefonlar uchun) --- */
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            .container {
+                padding: 15px;
+                border-radius: 14px;
+            }
+
+            h1 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+
+            input, select, textarea, button {
+                font-size: 13px;
+                padding: 10px 12px;
+            }
+
+            .store-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
+            }
+
+            .store-item span:last-child {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .product-header {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<meta name="description" content="KiyimKuzat - O'zbekistondagi do'konlarda kiyim-kechak narxlari va sifatini solishtiring, eng arzon va sifatli kiyimlarni toping.">
+<meta name="keywords" content="kiyim narxlari, kiyimlar tahlili, arzon kiyimlar toshkent, kiyimkuzat">
+<meta name="author" content="Sizning Ismingiz">
+<body>
+
+    <div class="container">
+        <h1>🧥 KiyimKuzat</h1>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Qidirish (masalan: Qishki Kurtka)..." oninput="filterProducts()">
+        </div>
+
+        <div id="productList">
+            <!-- Mahsulotlar ro'yxati -->
+        </div>
+
+        <div class="add-section">
+            <h3>Do'kondan kiyim narxi va sharh qo'shish</h3>
+            <input type="text" id="newName" placeholder="Mahsulot nomi (masalan: Jinsi shim)">
+            <input type="text" id="newStore" placeholder="Do'kon nomi (masalan: Stilniy Baza)">
+            <input type="number" id="newPrice" placeholder="Narxi (so'm)" step="1000" min="0">
+            <select id="newRating">
+                <option value="5">⭐⭐⭐⭐⭐ (A'lo sifat)</option>
+                <option value="4">⭐⭐⭐⭐ (Yaxshi)</option>
+                <option value="3">⭐⭐⭐ (O'rtacha)</option>
+                <option value="2">⭐⭐ (Yomon)</option>
+                <option value="1">⭐ (Juda yomon)</option>
+            </select>
+            <textarea id="newReview" placeholder="Izoh yozing..." rows="2"></textarea>
+            <button onclick="addProduct()">Qo'shish va Solishtirish</button>
+        </div>
+    </div>
+
+    <script>
+        let products = JSON.parse(localStorage.getItem("kiyimKuzatProducts")) || [
+            {
+                name: "Klassik Kostyum",
+                store: "Moda Markazi",
+                price: 450000,
+                rating: 4,
+                review: "Tikilishi chiroyli, lekin o'lchami biroz kichikroq ekan."
+            },
+            {
+                name: "Klassik Kostyum",
+                store: "Afsona Kiyim",
+                price: 380000,
+                rating: 3,
+                review: "Narxi arzon, lekin matosi tez eskirib qoladiganga o'xshaydi."
+            },
+            {
+                name: "Sportivka",
+                store: "Sport Land",
+                price: 220000,
+                rating: 5,
+                review: "100% paxta, yuvganda rangi o'zgarmadi. Tavsiya qilaman!"
+            }
+        ];
+
+        function displayProducts(items) {
+            const listContainer = document.getElementById("productList");
+            listContainer.innerHTML = "";
+
+            let grouped = {};
+            items.forEach(item => {
+                if (!grouped[item.name]) {
+                    grouped[item.name] = [];
+                }
+                grouped[item.name].push(item);
+            });
+
+            for (let productName in grouped) {
+                let entries = grouped[productName];
+                entries.sort((a, b) => a.price - b.price);
+
+                let html = `<div class="product-card">
+                    <div class="product-header">
+                        <span>${productName}</span>
+                    </div>
+                    <div>`;
+
+                entries.forEach((e, index) => {
+                    let starsHtml = "⭐".repeat(e.rating);
+                    let badge = index === 0 ? `<span class="badge">🔥 Eng arzon</span>` : "";
+                    let formattedPrice = Number(e.price).toLocaleString('uz-UZ');
+                    
+                    html += `
+                        <div class="store-item">
+                            <span><strong>${e.store}</strong>${badge}</span>
+                            <span><span style="font-weight: 500;">${formattedPrice} so'm</span> <span class="stars">${starsHtml}</span></span>
+                        </div>
+                        <div class="reviews-section">
+                            <div class="review-item">"${e.review}"</div>
+                        </div>
+                    `;
+                    if (index < entries.length - 1) {
+                        html += `<div style="border-top: 1px dashed rgba(255,255,255,0.1); margin: 8px 0;"></div>`;
+                    }
+                });
+
+                html += `</div></div>`;
+                listContainer.innerHTML += html;
+            }
+        }
+
+        function filterProducts() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            displayProducts(filtered);
+        }
+
+        function addProduct() {
+            const name = document.getElementById("newName").value.trim();
+            const store = document.getElementById("newStore").value.trim();
+            const price = Number(document.getElementById("newPrice").value);
+            const rating = Number(document.getElementById("newRating").value);
+            const review = document.getElementById("newReview").value.trim();
+
+            if (!name || !store || !price || !review) {
+                alert("Iltimos, barcha maydonlarni to'ldiring!");
+                return;
+            }
+
+            products.push({ name, store, price, rating, review });
+            localStorage.setItem("kiyimKuzatProducts", JSON.stringify(products));
+
+            displayProducts(products);
+
+            document.getElementById("newName").value = "";
+            document.getElementById("newStore").value = "";
+            document.getElementById("newPrice").value = "";
+            document.getElementById("newReview").value = "";
+            alert("Ma'lumot qo'shildi!");
+        }
+
+        displayProducts(products);
+    </script>
+</body>
+</html>

@@ -47,7 +47,7 @@
 
         .nav-menu {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             margin-bottom: 15px;
             background: rgba(15, 23, 42, 0.7);
             padding: 4px;
@@ -58,11 +58,11 @@
 
         .nav-btn {
             flex: 1;
-            min-width: 70px;
+            min-width: 65px;
             background: transparent;
             border: none;
-            padding: 8px 4px;
-            font-size: 11px;
+            padding: 8px 3px;
+            font-size: 10px;
             font-weight: 600;
             color: #94a3b8;
             border-radius: 8px;
@@ -86,7 +86,35 @@
         }
         
         .search-box {
+            position: relative;
             margin-bottom: 15px;
+        }
+
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 0 0 10px 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #cbd5e1;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .suggestion-item:hover {
+            background: #334155;
+            color: #38bdf8;
         }
 
         input, select, textarea {
@@ -181,6 +209,25 @@
             gap: 5px;
         }
 
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px;
+            transition: transform 0.2s;
+        }
+
+        .icon-btn:active {
+            transform: scale(1.2);
+        }
+
         .product-img {
             width: 100%;
             max-height: 180px;
@@ -195,14 +242,25 @@
             justify-content: space-between;
             align-items: flex-start;
             font-size: 13px;
-            padding: 5px 0;
+            padding: 6px 0;
             gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .store-item:last-child {
+            border-bottom: none;
         }
 
         .store-info {
             display: flex;
             flex-direction: column;
             gap: 2px;
+        }
+
+        .store-orientir {
+            font-size: 11px;
+            color: #38bdf8;
+            font-style: italic;
         }
 
         .stock-badge {
@@ -293,29 +351,40 @@
     <div class="container">
         <h1>Narx-qiyosla</h1>
         
-        <div class="nav-menu">
+        <div class="nav-menu" id="navMenu" style="display: none;">
             <button class="nav-btn active" onclick="switchTab('productsTab', this)">Mahsulotlar</button>
+            <button class="nav-btn" onclick="switchTab('favoritesTab', this)">💾 Saqlanganlar</button>
             <button class="nav-btn" onclick="switchTab('addTab', this)">➕ Qo'shish</button>
             <button class="nav-btn" onclick="switchTab('profileTab', this)">👤 Profil</button>
             <button class="nav-btn" id="adminNavBtn" onclick="switchTab('adminTab', this)" style="display:none; color: #f43f5e;">🛡️ Admin</button>
         </div>
 
         <!-- 1. Mahsulotlar Tab -->
-        <div id="productsTab" class="tab-content active">
+        <div id="productsTab" class="tab-content">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Qidirish (masalan: Qishki Kurtka)..." oninput="filterProducts()">
+                <input type="text" id="searchInput" placeholder="Qidirish (masalan: Qishki Kurtka)..." oninput="handleSearchInput()" autocomplete="off">
+                <div id="suggestionsList" class="suggestions-list"></div>
             </div>
             <div id="productList">
                 <div class="loader">Ma'lumotlar yuklanmoqda...</div>
             </div>
         </div>
 
-        <!-- 2. Qo'shish Tab -->
+        <!-- 2. Saqlanganlar Tab -->
+        <div id="favoritesTab" class="tab-content">
+            <h3 style="color: #fb7185; font-size: 16px; margin-top: 0;">💾 Saqlangan mahsulotlar</h3>
+            <div id="favoritesList">
+                <div style="text-align: center; color: #94a3b8; padding: 20px;">Hozircha saqlangan mahsulotlar yo'q.</div>
+            </div>
+        </div>
+
+        <!-- 3. Qo'shish Tab -->
         <div id="addTab" class="tab-content">
             <div class="add-section">
                 <h3>Do'kondan kiyim narxi qo'shish</h3>
-                <input type="text" id="newName" placeholder="Mahsulot nomi (Majburiy) *">
-                <input type="text" id="newStore" placeholder="Do'kon nomi (Majburiy) *">
+                <input type="text" id="newName" placeholder="Mahsulot nomi (Majburiy) *" autocomplete="off">
+                <input type="text" id="newStore" placeholder="Do'kon nomi (Majburiy) *" autocomplete="off">
+                <input type="text" id="newOrientir" placeholder="Mo'ljal / Orientir (Majburiy) *" autocomplete="off">
                 <input type="number" id="newPrice" placeholder="Narxi so'mda (Majburiy) *" step="1000" min="0">
                 <input type="number" id="newStock" placeholder="Qolgan soni / dona (Ixtiyoriy)" min="0">
                 
@@ -340,27 +409,31 @@
             </div>
         </div>
 
-        <!-- 3. Profil Tab -->
-        <div id="profileTab" class="tab-content">
+        <!-- 4. Profil Tab -->
+        <div id="profileTab" class="tab-content active">
             <div class="profile-box">
+                <h3 style="color: #38bdf8; font-size: 16px; margin-top: 0;">👤 Foydalanuvchi Profili</h3>
+                
                 <div id="loggedOutView">
-                    <h3 style="color: #e2e8f0; font-size: 16px; margin-top:0;">Tizimga kirish</h3>
-                    <p style="font-size: 13px; color: #94a3b8; margin-bottom: 15px;">Mahsulot qo'shish uchun emailingiz bilan kiring.</p>
-                    <input type="email" id="authEmail" placeholder="Email manzilingiz...">
-                    <input type="password" id="authPassword" placeholder="Parol...">
-                    <button class="action-btn" onclick="loginUser()" style="margin-bottom: 10px;">Kirish</button>
-                    <button class="action-btn" onclick="registerUser()" style="background: transparent; border: 1px solid #6366f1;">Ro'yxatdan o'tish</button>
+                    <p style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">Dasturdan foydalanish uchun avval tizimga kiring yoki ro'yxatdan o'ting.</p>
+                    <input type="email" id="authEmail" placeholder="Email manzilingiz" autocomplete="off">
+                    <input type="password" id="authPassword" placeholder="Parol" autocomplete="new-password">
+                    <p style="font-size: 11px; color: #facc15; margin-top: -4px; margin-bottom: 10px; text-align: left;">Faqat raqamlar va uzunligi 6 tadan ko'p bo'lsin</p>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <button class="action-btn" onclick="loginUser()" style="flex: 1; padding: 10px; font-size: 13px;">Kirish</button>
+                        <button class="action-btn" onclick="registerUser()" style="flex: 1; padding: 10px; font-size: 13px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">Ro'yxatdan o'tish</button>
+                    </div>
                 </div>
 
-                <div id="loggedInView" style="display:none;">
-                    <h3 style="color: #38bdf8; font-size: 16px; margin-top:0;">Xush kelibsiz!</h3>
-                    <p id="userEmailDisplay" style="font-size: 14px; color: #cbd5e1; margin-bottom: 20px; word-break: break-all;"></p>
-                    <button class="action-btn" onclick="logoutUser()" style="background: #ef4444;">Tizimdan chiqish</button>
+                <div id="loggedInView" style="display: none;">
+                    <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">Xush kelibsiz:</p>
+                    <p id="userEmailDisplay" style="font-size: 14px; font-weight: bold; color: #38bdf8; word-break: break-all; margin-bottom: 15px;"></p>
+                    <button class="action-btn" onclick="logoutUser()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 10px; font-size: 13px;">Chiqish</button>
                 </div>
             </div>
         </div>
 
-        <!-- 4. Admin Tab -->
+        <!-- 5. Admin Tab -->
         <div id="adminTab" class="tab-content">
             <h3 style="color: #f43f5e; font-size: 16px; margin-top: 0;">🛡️ Shikoyat qilingan mahsulotlar</h3>
             <p style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">Bu yerda foydalanuvchilar shikoyat qilgan mahsulotlar ro'yxati ko'rinadi.</p>
@@ -374,18 +447,27 @@
         const SUPABASE_URL = 'https://flzmgexkhhdvjnmcibqi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_IhrM4o-fRW-wD4PVj-f1-g_k-rFaSDJ';
         
-        // ADMINNING EMAIL MANZILI
-        const ADMIN_EMAIL = "sizning_oson_emailingiz@gmail.com"; // <-- O'ZINGIZNING EMAILINGIZ BILAN ALMASHTIRING!
+        const ADMIN_EMAIL = "sizning_oson_emailingiz@gmail.com";
         
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let products = [];
         let reportedProductIds = new Set();
         let currentUser = null;
+        let favorites = JSON.parse(localStorage.getItem('narx_favorites')) || [];
 
         document.addEventListener("DOMContentLoaded", async () => {
+            document.getElementById("authEmail").value = "";
+            document.getElementById("authPassword").value = "";
+            document.getElementById("searchInput").value = "";
+
             await checkUser();
             await fetchReportsList();
             fetchProducts();
+        });
+
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            currentUser = session?.user || null;
+            updateAuthUI();
         });
 
         async function checkUser() {
@@ -398,10 +480,12 @@
             const loggedOutView = document.getElementById("loggedOutView");
             const loggedInView = document.getElementById("loggedInView");
             const adminNavBtn = document.getElementById("adminNavBtn");
+            const navMenu = document.getElementById("navMenu");
 
             if (currentUser) {
                 loggedOutView.style.display = "none";
                 loggedInView.style.display = "block";
+                navMenu.style.display = "flex";
                 document.getElementById("userEmailDisplay").textContent = currentUser.email;
 
                 if (currentUser.email === ADMIN_EMAIL) {
@@ -410,11 +494,24 @@
                 } else {
                     adminNavBtn.style.display = "none";
                 }
+
+                const activeTab = document.querySelector('.tab-content.active');
+                if (activeTab && activeTab.id === 'profileTab' && !document.getElementById('authEmail').value) {
+                    switchTab('productsTab', document.querySelector('.nav-btn'));
+                }
             } else {
                 loggedOutView.style.display = "block";
                 loggedInView.style.display = "none";
+                navMenu.style.display = "none";
                 adminNavBtn.style.display = "none";
+                switchTab('profileTab', null);
             }
+        }
+
+        function validatePassword(password) {
+            const isOnlyDigits = /^\d+$/.test(password);
+            const isLongEnough = password.length > 6;
+            return isOnlyDigits && isLongEnough;
         }
 
         async function loginUser() {
@@ -446,27 +543,39 @@
                 return;
             }
 
+            if (!validatePassword(password)) {
+                alert("Xatolik: Parol faqat raqamlardan iborat bo'lishi va 6 tadan ko'p (kamida 7 ta raqam) bo'lishi shart!");
+                return;
+            }
+
             const { data, error } = await supabaseClient.auth.signUp({ email, password });
             if (error) {
                 alert("Xatolik: " + error.message);
                 return;
             }
-            alert("Ro'yxatdan o'tdingiz!");
+            alert("Muvaffaqiyatli ro'yxatdan o'tdingiz! Endi kirish tugmasini bosing.");
         }
 
         async function logoutUser() {
             await supabaseClient.auth.signOut();
             currentUser = null;
             updateAuthUI();
-            switchTab('productsTab', document.querySelector('.nav-btn'));
             alert("Tizimdan chiqdingiz.");
         }
 
         function switchTab(tabId, btnElement) {
+            if (!currentUser && tabId !== 'profileTab') {
+                return;
+            }
+
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             if (btnElement) btnElement.classList.add('active');
+
+            if (tabId === 'favoritesTab') {
+                displayFavorites();
+            }
 
             if (tabId === 'adminTab' && currentUser && currentUser.email === ADMIN_EMAIL) {
                 fetchReportedProducts();
@@ -491,7 +600,84 @@
             );
         }
 
-        // Shikoyat qilingan mahsulot ID'larini olib kelish
+        function toggleFavorite(productName) {
+            const index = favorites.indexOf(productName);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(productName);
+            }
+            localStorage.setItem('narx_favorites', JSON.stringify(favorites));
+            displayProducts(products);
+            if (document.getElementById('favoritesTab').classList.contains('active')) {
+                displayFavorites();
+            }
+        }
+
+        function shareProduct(productName) {
+            let groupedEntries = products.filter(p => p.name.toLowerCase() === productName.toLowerCase());
+            let shareText = `🧥 Mahsulot: ${productName}\n📍 Shahrixon narxlari:\n`;
+            
+            groupedEntries.forEach(e => {
+                let priceFormatted = Number(e.price).toLocaleString('uz-UZ');
+                let orientirText = e.orientir ? ` (Mo'ljal: ${e.orientir})` : '';
+                shareText += `- ${e.store}${orientirText}: ${priceFormatted} so'm\n`;
+            });
+            shareText += `\n"Narx-qiyosla" ilovasi orqali topildi!`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: productName,
+                    text: shareText
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(shareText);
+                alert("Mahsulot ma'lumotlari nusxalandi! Istalgan joyga tashlashingiz mumkin.");
+            }
+        }
+
+        function handleSearchInput() {
+            const query = document.getElementById("searchInput").value.toLowerCase().trim();
+            const suggestionsList = document.getElementById("suggestionsList");
+            
+            filterProducts();
+
+            if (!query) {
+                suggestionsList.style.display = "none";
+                return;
+            }
+
+            let uniqueNames = [...new Set(products.map(p => p.name))];
+            let matched = uniqueNames.filter(name => name.toLowerCase().includes(query)).slice(0, 5);
+
+            if (matched.length === 0) {
+                suggestionsList.style.display = "none";
+                return;
+            }
+
+            suggestionsList.innerHTML = "";
+            matched.forEach(name => {
+                let div = document.createElement("div");
+                div.className = "suggestion-item";
+                div.textContent = name;
+                div.onclick = () => {
+                    document.getElementById("searchInput").value = name;
+                    suggestionsList.style.display = "none";
+                    filterProducts();
+                };
+                suggestionsList.appendChild(div);
+            });
+
+            suggestionsList.style.display = "block";
+        }
+
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest('.search-box')) {
+                const suggestionsList = document.getElementById("suggestionsList");
+                if (suggestionsList) suggestionsList.style.display = "none";
+            }
+        });
+
         async function fetchReportsList() {
             const { data, error } = await supabaseClient.from('reports').select('product_id');
             if (!error && data) {
@@ -499,7 +685,6 @@
             }
         }
 
-        // Hamma mahsulotlarni yuklaymiz (hech qaysi yashirilmaydi)
         async function fetchProducts() {
             await fetchReportsList();
             const { data, error } = await supabaseClient
@@ -515,20 +700,24 @@
 
             products = data || [];
             displayProducts(products);
+            if (document.getElementById('favoritesTab').classList.contains('active')) {
+                displayFavorites();
+            }
         }
 
-        function displayProducts(items) {
-            const listContainer = document.getElementById("productList");
+        function displayProducts(items, containerId = "productList", isFavoritesView = false) {
+            const listContainer = document.getElementById(containerId);
             listContainer.innerHTML = "";
 
             let grouped = {};
             items.forEach(item => {
+                if (isFavoritesView && !favorites.includes(item.name)) return;
                 if (!grouped[item.name]) grouped[item.name] = [];
                 grouped[item.name].push(item);
             });
 
             if (Object.keys(grouped).length === 0) {
-                listContainer.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px;">Hech qanday mahsulot topilmadi.</div>`;
+                listContainer.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px;">${isFavoritesView ? "Hozircha saqlangan mahsulotlar yo'q." : "Hech qanday mahsulot topilmadi."}</div>`;
                 return;
             }
 
@@ -536,13 +725,20 @@
                 let entries = grouped[productName];
                 let cheapest = [...entries].sort((a, b) => a.price - b.price)[0];
                 let bestQuality = [...entries].sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
+                let isFav = favorites.includes(productName);
 
                 let card = document.createElement("div");
                 card.className = "product-card";
 
                 let header = document.createElement("div");
                 header.className = "product-header";
-                header.innerHTML = `<span>${escapeHtml(productName)}</span>`;
+                header.innerHTML = `
+                    <span>${escapeHtml(productName)}</span>
+                    <div class="header-actions">
+                        <button class="icon-btn" onclick="shareProduct('${escapeHtml(productName)}')" title="Ulashish">🔗</button>
+                        <button class="icon-btn" onclick="toggleFavorite('${escapeHtml(productName)}')" title="Saqlash">${isFav ? '💾' : '📥'}</button>
+                    </div>
+                `;
                 card.appendChild(header);
 
                 let contentDiv = document.createElement("div");
@@ -552,7 +748,6 @@
                 }
 
                 highlightList.forEach((e, index) => {
-                    // Agar bu mahsulotga shikoyat tushgan bo'lsa, ogohlantirish bannerini chiqaramiz
                     if (reportedProductIds.has(String(e.id))) {
                         let warningDiv = document.createElement("div");
                         warningDiv.className = "warning-banner";
@@ -575,12 +770,14 @@
 
                     let formattedPrice = Number(e.price).toLocaleString('uz-UZ');
                     let stockText = (e.stock !== null && e.stock !== undefined && e.stock !== "") ? `<span class="stock-badge">Qoldiq: ${e.stock} dona</span>` : "";
+                    let orientirHtml = e.orientir ? `<div class="store-orientir">📍 Mo'ljal: ${escapeHtml(e.orientir)}</div>` : "";
                     
                     let storeItem = document.createElement("div");
                     storeItem.className = "store-item";
                     storeItem.innerHTML = `
                         <div class="store-info">
                             <span><strong>${escapeHtml(e.store)}</strong> ${badges}</span>
+                            ${orientirHtml}
                             ${stockText}
                         </div>
                         <span><span style="font-weight: 500;">${formattedPrice} so'm</span> <span class="stars">${starsHtml}</span></span>
@@ -613,6 +810,10 @@
                 card.appendChild(contentDiv);
                 listContainer.appendChild(card);
             }
+        }
+
+        function displayFavorites() {
+            displayProducts(products, "favoritesList", true);
         }
 
         function filterProducts() {
@@ -667,7 +868,6 @@
             };
         }
 
-        // Admin menyusi: barcha shikoyatlarni ko'rish va tozalash
         async function fetchReportedProducts() {
             const container = document.getElementById("adminReportedList");
             container.innerHTML = `<div class="loader">Yuklanmoqda...</div>`;
@@ -689,7 +889,6 @@
 
             container.innerHTML = "";
             for (let rep of reportsData) {
-                // Shikoyat qilingan mahsulot ma'lumotini topamiz
                 const { data: prodData } = await supabaseClient
                     .from('products')
                     .select('name, store, price')
@@ -714,7 +913,6 @@
             }
         }
 
-        // Admin shikoyatni asossiz deb topsa, o'chirib tashlaydi (shunda mahsulotdan ogohlantirish yo'qoladi)
         async function clearReport(reportId) {
             if (!confirm("Bu shikoyatni o'chirishni xohlaysizmi?")) return;
 
@@ -730,18 +928,19 @@
 
         async function addProduct() {
             if (!currentUser) {
-                alert("Mahsulot qo'shish uchun avval '👤 Profil' bo'limiga o'tib tizimga kiring!");
-                switchTab('profileTab', document.querySelectorAll('.nav-btn')[2]);
+                alert("Mahsulot qo'shish uchun avval tizimga kiring!");
+                switchTab('profileTab', null);
                 return;
             }
 
             const name = document.getElementById("newName").value.trim();
             const store = document.getElementById("newStore").value.trim();
+            const orientir = document.getElementById("newOrientir").value.trim();
             const priceInput = document.getElementById("newPrice").value;
             const price = Number(priceInput);
 
-            if (!name || !store || !priceInput || isNaN(price)) {
-                alert("Xatolik: Mahsulot nomi, do'kon va narxi kiritilishi shart!");
+            if (!name || !store || !orientir || !priceInput || isNaN(price)) {
+                alert("Xatolik: Mahsulot nomi, do'kon, mo'ljal va narxi kiritilishi shart!");
                 return;
             }
 
@@ -752,50 +951,64 @@
             const review = document.getElementById("newReview").value.trim();
             const imageInput = document.getElementById("newImage");
 
-            const saveToCloud = async (imageUrl) => {
-                const { error } = await supabaseClient
-                    .from('products')
-                    .insert([{ 
-                        name, 
-                        store, 
-                        price, 
-                        stock, 
-                        rating, 
-                        review, 
-                        image: imageUrl,
-                        user_id: currentUser.id,
-                        user_email: currentUser.email
-                    }]);
+            let imageUrl = "";
 
-                if (error) {
-                    alert("Xatolik yuz berdi: " + error.message);
+            if (imageInput.files && imageInput.files[0]) {
+                const file = imageInput.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+                const filePath = `${fileName}`;
+
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('product-images')
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    alert("Rasmni yuklashda xatolik: " + uploadError.message);
                     return;
                 }
 
-                document.getElementById("newName").value = "";
-                document.getElementById("newStore").value = "";
-                document.getElementById("newPrice").value = "";
-                document.getElementById("newStock").value = "";
-                document.getElementById("newImage").value = "";
-                document.getElementById("fileChosenText").textContent = "Fayl tanlanmagan";
-                document.getElementById("fileChosenText").style.color = "#94a3b8";
-                document.getElementById("newRating").value = "";
-                document.getElementById("newReview").value = "";
-                
-                alert("Mahsulot muvaffaqiyatli qo'shildi!");
-                fetchProducts();
-                switchTab('productsTab', document.querySelectorAll('.nav-btn')[0]);
-            };
+                const { data: publicURLData } = supabaseClient.storage
+                    .from('product-images')
+                    .getPublicUrl(filePath);
 
-            if (imageInput.files && imageInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    saveToCloud(e.target.result);
-                };
-                reader.readAsDataURL(imageInput.files[0]);
-            } else {
-                saveToCloud("");
+                imageUrl = publicURLData.publicUrl;
             }
+
+            const { error } = await supabaseClient
+                .from('products')
+                .insert([{ 
+                    name, 
+                    store, 
+                    orientir,
+                    price, 
+                    stock, 
+                    rating, 
+                    review, 
+                    image: imageUrl,
+                    user_id: currentUser.id,
+                    user_email: currentUser.email
+                }]);
+
+            if (error) {
+                alert("Xatolik yuz berdi: " + error.message);
+                return;
+            }
+
+            document.getElementById("newName").value = "";
+            document.getElementById("newStore").value = "";
+            document.getElementById("newOrientir").value = "";
+            document.getElementById("newPrice").value = "";
+            document.getElementById("newStock").value = "";
+            document.getElementById("newImage").value = "";
+            document.getElementById("fileChosenText").textContent = "Fayl tanlanmagan";
+            document.getElementById("fileChosenText").style.color = "#94a3b8";
+            document.getElementById("newRating").value = "";
+            document.getElementById("newReview").value = "";
+            
+            alert("Mahsulot muvaffaqiyatli qo'shildi!");
+            fetchProducts();
+            switchTab('productsTab', document.querySelectorAll('.nav-btn')[0]);
         }
     </script>
 </body>

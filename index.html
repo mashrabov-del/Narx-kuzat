@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Narx-solishtir - Shahrixon</title>
+    <title>Bozor - Shahrixon</title>
     <meta name="description" content="Shahrixondagi do'konlarda kiyim-kechak narxlari va sifatini solishtiring.">
     <!-- Supabase Kutubxonasi CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -321,10 +321,25 @@
             color: #94a3b8;
         }
 
+        .footer-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
         .report-btn {
             background: transparent;
             border: 1px solid #ef4444;
             color: #f87171;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .edit-btn {
+            background: transparent;
+            border: 1px solid #38bdf8;
+            color: #38bdf8;
             padding: 2px 6px;
             border-radius: 4px;
             cursor: pointer;
@@ -338,22 +353,133 @@
             text-align: center;
         }
 
+        /* --- KIRISH VA RO'YXATDAN O'TISHNING FARQLI DIZAYnlari --- */
+        .auth-container {
+            transition: all 0.4s ease;
+            border-radius: 14px;
+            padding: 15px;
+        }
+
+        .auth-container.mode-login {
+            background: linear-gradient(145deg, rgba(30, 27, 75, 0.8), rgba(15, 23, 42, 0.9));
+            border: 2px solid #8b5cf6;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.25);
+        }
+
+        .auth-container.mode-login .auth-title {
+            color: #c084fc;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.4);
+        }
+
+        .auth-container.mode-login input {
+            background: #111827;
+            border-color: #7c3aed;
+        }
+
+        .auth-container.mode-login input:focus {
+            border-color: #a78bfa;
+            box-shadow: 0 0 10px rgba(167, 139, 250, 0.4);
+        }
+
+        .auth-container.mode-register {
+            background: linear-gradient(145deg, rgba(6, 78, 59, 0.6), rgba(15, 23, 42, 0.9));
+            border: 2px dashed #10b981;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+        }
+
+        .auth-container.mode-register .auth-title {
+            color: #34d399;
+            letter-spacing: 0.5px;
+        }
+
+        .auth-container.mode-register input {
+            background: #022c22;
+            border-color: #059669;
+        }
+
+        .auth-container.mode-register input:focus {
+            border-color: #34d399;
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+        }
+
+        .auth-toggle-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .auth-toggle-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-toggle-btn.login-active-tab {
+            background: #7c3aed;
+            color: white;
+            box-shadow: 0 2px 10px rgba(124, 58, 237, 0.4);
+        }
+
+        .auth-toggle-btn.register-active-tab {
+            background: #059669;
+            color: white;
+            box-shadow: 0 2px 10px rgba(5, 150, 105, 0.4);
+        }
+
+        .auth-toggle-btn.inactive {
+            color: #94a3b8;
+        }
+        /* ---------------------------------------------------- */
+
         .loader {
             text-align: center;
             color: #38bdf8;
             padding: 15px;
             font-size: 14px;
         }
+
+        .modal-overlay {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.7); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: #1e293b; 
+            padding: 20px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 400px;
+            border: 1px solid #475569;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Narx-qiyosla</h1>
+        <h1>Bozor</h1>
         
         <div class="nav-menu" id="navMenu" style="display: none;">
             <button class="nav-btn active" onclick="switchTab('productsTab', this)">Mahsulotlar</button>
-            <button class="nav-btn" onclick="switchTab('favoritesTab', this)">💾 Saqlanganlar</button>
+            <button class="nav-btn" id="favoritesNavBtn" onclick="switchTab('favoritesTab', this)">💾 Saqlanganlar</button>
             <button class="nav-btn" onclick="switchTab('addTab', this)">➕ Qo'shish</button>
             <button class="nav-btn" onclick="switchTab('profileTab', this)">👤 Profil</button>
             <button class="nav-btn" id="adminNavBtn" onclick="switchTab('adminTab', this)" style="display:none; color: #f43f5e;">🛡️ Admin</button>
@@ -362,7 +488,7 @@
         <!-- 1. Mahsulotlar Tab -->
         <div id="productsTab" class="tab-content">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Qidirish (masalan: Qishki Kurtka)..." oninput="handleSearchInput()" autocomplete="off">
+                <input type="text" id="searchInput" placeholder="Qidirish (masalan: Qishki Kurtka)..." oninput="handleSearchInput()" onkeydown="handleEnterKey(event, 'search')" autocomplete="off">
                 <div id="suggestionsList" class="suggestions-list"></div>
             </div>
             <div id="productList">
@@ -373,6 +499,9 @@
         <!-- 2. Saqlanganlar Tab -->
         <div id="favoritesTab" class="tab-content">
             <h3 style="color: #fb7185; font-size: 16px; margin-top: 0;">💾 Saqlangan mahsulotlar</h3>
+            <div class="search-box">
+                <input type="text" id="favoritesSearchInput" placeholder="Saqlanganlardan qidirish..." oninput="filterFavorites()" onkeydown="handleEnterKey(event, 'favoritesSearch')" autocomplete="off">
+            </div>
             <div id="favoritesList">
                 <div style="text-align: center; color: #94a3b8; padding: 20px;">Hozircha saqlangan mahsulotlar yo'q.</div>
             </div>
@@ -380,16 +509,26 @@
 
         <!-- 3. Qo'shish Tab -->
         <div id="addTab" class="tab-content">
-            <div class="add-section">
-                <h3>Do'kondan kiyim narxi qo'shish</h3>
-                <input type="text" id="newName" placeholder="Mahsulot nomi (Majburiy) *" autocomplete="off">
-                <input type="text" id="newStore" placeholder="Do'kon nomi (Majburiy) *" autocomplete="off">
-                <input type="text" id="newOrientir" placeholder="Mo'ljal / Orientir (Majburiy) *" autocomplete="off">
-                <input type="number" id="newPrice" placeholder="Narxi so'mda (Majburiy) *" step="1000" min="0">
-                <input type="number" id="newStock" placeholder="Qolgan soni / dona (Ixtiyoriy)" min="0">
+            <div id="activationLockSection" class="profile-box" style="margin-bottom: 15px;">
+                <h3 style="color: #facc15; font-size: 15px; margin-top: 0;">🔒 Maxsus litsenziya kodi talab etiladi</h3>
+                <p style="font-size: 11px; color: #94a3b8; margin-bottom: 12px;">Do'kondan ma'lumot kiritish uchun sotuvchi tomonidan berilgan maxsus aktivatsiya kodini kiriting:</p>
+                <input type="password" id="activationCodeInput" placeholder="Maxsus kodni kiriting..." onkeydown="handleEnterKey(event, 'activation')" autocomplete="off">
+                <button class="action-btn" onclick="verifyActivationCode()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 10px; font-size: 13px;">Kodni tasdiqlash</button>
+            </div>
+
+            <div id="addSectionContent" style="display: none;" class="add-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 0; font-size: 15px; color: #34d399;">✅ Litsenziya faol</h3>
+                    <button onclick="lockActivation()" style="background: transparent; border: 1px solid #ef4444; color: #f87171; padding: 3px 8px; border-radius: 6px; font-size: 10px; cursor: pointer;">Qulflash</button>
+                </div>
+                <input type="text" id="newName" placeholder="Mahsulot nomi (Majburiy) *" onkeydown="handleEnterKey(event, 'addProduct')" autocomplete="off">
+                <input type="text" id="newStore" placeholder="Do'kon nomi (Majburiy) *" onkeydown="handleEnterKey(event, 'addProduct')" autocomplete="off">
+                <input type="text" id="newOrientir" placeholder="Mo'ljal / Orientir (Majburiy) *" onkeydown="handleEnterKey(event, 'addProduct')" autocomplete="off">
+                <input type="number" id="newPrice" placeholder="Narxi so'mda (Majburiy) *" step="1000" min="0" onkeydown="handleEnterKey(event, 'addProduct')">
+                <input type="number" id="newStock" placeholder="Qolgan soni / dona (Ixtiyoriy)" min="0" onkeydown="handleEnterKey(event, 'addProduct')">
                 
                 <div class="file-upload-wrapper">
-                    <input type="file" id="newImage" class="file-upload-input" accept="image/*" onchange="previewFileName(this)">
+                    <input type="file" id="newImage" class="file-upload-input" accept="image/*" onchange="previewFileName(this, 'fileChosenText')">
                     <label for="newImage" class="file-upload-btn">
                         <span class="file-main-text">📁 Rasm tanlash (Ixtiyoriy)</span>
                         <span class="file-sub-text" id="fileChosenText">Fayl tanlanmagan</span>
@@ -410,24 +549,34 @@
         </div>
 
         <!-- 4. Profil Tab -->
-        <div id="profileTab" class="tab-content active">
+        <div id="profileTab" class="tab-content">
             <div class="profile-box">
                 <h3 style="color: #38bdf8; font-size: 16px; margin-top: 0;">👤 Foydalanuvchi Profili</h3>
                 
                 <div id="loggedOutView">
-                    <p style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">Dasturdan foydalanish uchun avval tizimga kiring yoki ro'yxatdan o'ting.</p>
-                    <input type="email" id="authEmail" placeholder="Email manzilingiz" autocomplete="off">
-                    <input type="password" id="authPassword" placeholder="Parol" autocomplete="new-password">
-                    <p style="font-size: 11px; color: #facc15; margin-top: -4px; margin-bottom: 10px; text-align: left;">Faqat raqamlar va uzunligi 6 tadan ko'p bo'lsin</p>
-                    <div style="display: flex; gap: 8px; margin-top: 5px;">
-                        <button class="action-btn" onclick="loginUser()" style="flex: 1; padding: 10px; font-size: 13px;">Kirish</button>
-                        <button class="action-btn" onclick="registerUser()" style="flex: 1; padding: 10px; font-size: 13px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">Ro'yxatdan o'tish</button>
+                    <!-- Dinamik ravishda o'zgaruvchi blok -->
+                    <div id="authBoxContainer" class="auth-container mode-login">
+                        <h4 id="authBoxTitle" class="auth-title" style="margin-top: 0; font-size: 14px; margin-bottom: 10px;">⚡ Tizimga xush kelibsiz</h4>
+                        
+                        <div class="auth-toggle-bar">
+                            <button id="modeLoginBtn" class="auth-toggle-btn login-active-tab" onclick="setAuthMode('login')">🔑 Kirish</button>
+                            <button id="modeRegisterBtn" class="auth-toggle-btn inactive" onclick="setAuthMode('register')">📝 Ro'yxatdan o'tish</button>
+                        </div>
+
+                        <input type="email" id="authEmail" placeholder="Elektron pochta (Email)" autocomplete="email" onkeydown="handleEnterKey(event, 'auth')" style="display: none;">
+                        <input type="text" id="authUsername" placeholder="Foydalanuvchi nomi (Username)" autocomplete="username" value="abu_bakr" onkeydown="handleEnterKey(event, 'auth')">
+                        <input type="password" id="authPassword" placeholder="Parol" autocomplete="current-password" onkeydown="handleEnterKey(event, 'auth')">
+                        
+                        <div style="margin-top: 5px;">
+                            <button id="authActionBtn" class="action-btn" onclick="handleAuthSubmit()" style="padding: 10px; font-size: 13px;">Kirish</button>
+                        </div>
                     </div>
                 </div>
 
-                <div id="loggedInView" style="display: none;">
-                    <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">Xush kelibsiz:</p>
-                    <p id="userEmailDisplay" style="font-size: 14px; font-weight: bold; color: #38bdf8; word-break: break-all; margin-bottom: 15px;"></p>
+                <div id="loggedInView" style="display: none; margin-top: 15px;">
+                    <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 5px;">Xush kelibsiz:</p>
+                    <p id="userNameDisplay" style="font-size: 17px; font-weight: bold; color: #38bdf8; margin-bottom: 2px;"></p>
+                    <p id="userHandleDisplay" style="font-size: 11px; color: #94a3b8; margin-bottom: 15px;"></p>
                     <button class="action-btn" onclick="logoutUser()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 10px; font-size: 13px;">Chiqish</button>
                 </div>
             </div>
@@ -447,23 +596,152 @@
         const SUPABASE_URL = 'https://flzmgexkhhdvjnmcibqi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_IhrM4o-fRW-wD4PVj-f1-g_k-rFaSDJ';
         
-        const ADMIN_EMAIL = "sizning_oson_emailingiz@gmail.com";
+        const ADMIN_USERNAME = "abu_bakr"; 
+        const SPECIAL_SELLER_CODE = "abubakr_05.01"; 
         
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let products = [];
         let reportedProductIds = new Set();
         let currentUser = null;
         let favorites = JSON.parse(localStorage.getItem('narx_favorites')) || [];
+        let currentAuthMode = 'login';
+
+        function showToast(message, type = 'success') {
+            const existing = document.getElementById('toastNotification');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.id = 'toastNotification';
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'error' ? '#ef4444' : '#10b981'};
+                color: white;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transition: opacity 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
         document.addEventListener("DOMContentLoaded", async () => {
-            document.getElementById("authEmail").value = "";
             document.getElementById("authPassword").value = "";
+            document.getElementById("authUsername").value = "";
+            document.getElementById("authEmail").value = "";
             document.getElementById("searchInput").value = "";
+            document.getElementById("favoritesSearchInput").value = "";
 
+            checkActivationStatus();
             await checkUser();
             await fetchReportsList();
             fetchProducts();
         });
+
+        function handleEnterKey(event, actionType) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (actionType === 'search') {
+                    handleSearchInput();
+                    const suggestionsList = document.getElementById("suggestionsList");
+                    if (suggestionsList) suggestionsList.style.display = "none";
+                } else if (actionType === 'favoritesSearch') {
+                    filterFavorites();
+                } else if (actionType === 'activation') {
+                    verifyActivationCode();
+                } else if (actionType === 'addProduct') {
+                    addProduct();
+                } else if (actionType === 'auth') {
+                    handleAuthSubmit();
+                }
+            }
+        }
+
+        function setAuthMode(mode) {
+            currentAuthMode = mode;
+            const modeLoginBtn = document.getElementById("modeLoginBtn");
+            const modeRegisterBtn = document.getElementById("modeRegisterBtn");
+            const actionBtn = document.getElementById("authActionBtn");
+            const emailInput = document.getElementById("authEmail");
+            const authContainer = document.getElementById("authBoxContainer");
+            const authTitle = document.getElementById("authBoxTitle");
+
+            if (mode === 'login') {
+                authContainer.className = "auth-container mode-login";
+                authTitle.textContent = "⚡ Tizimga xush kelibsiz (Kirish)";
+                modeLoginBtn.className = "auth-toggle-btn login-active-tab";
+                modeRegisterBtn.className = "auth-toggle-btn inactive";
+                emailInput.style.display = "none";
+                actionBtn.textContent = "Kirish";
+                actionBtn.style.background = "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)";
+            } else {
+                authContainer.className = "auth-container mode-register";
+                authTitle.textContent = "✨ Yangi hisob yaratish (Ro'yxatdan o'tish)";
+                modeRegisterBtn.className = "auth-toggle-btn register-active-tab";
+                modeLoginBtn.className = "auth-toggle-btn inactive";
+                emailInput.style.display = "block";
+                actionBtn.textContent = "Ro'yxatdan o'tish";
+                actionBtn.style.background = "linear-gradient(135deg, #059669 0%, #10b981 100%)";
+            }
+        }
+
+        async function handleAuthSubmit() {
+            if (currentAuthMode === 'login') {
+                await loginUser();
+            } else {
+                await registerUser();
+            }
+        }
+
+        function checkActivationStatus() {
+            const isActivated = localStorage.getItem('narx_app_activated');
+            const lockSection = document.getElementById('activationLockSection');
+            const contentSection = document.getElementById('addSectionContent');
+            const favoritesNavBtn = document.getElementById('favoritesNavBtn');
+
+            if (isActivated === 'true') {
+                lockSection.style.display = 'none';
+                contentSection.style.display = 'block';
+                if (favoritesNavBtn) favoritesNavBtn.style.display = 'none';
+
+                const activeTab = document.querySelector('.tab-content.active');
+                if (activeTab && activeTab.id === 'favoritesTab') {
+                    switchTab('productsTab', document.querySelector('.nav-btn'));
+                }
+            } else {
+                lockSection.style.display = 'block';
+                contentSection.style.display = 'none';
+                if (favoritesNavBtn) favoritesNavBtn.style.display = 'block';
+            }
+        }
+
+        function verifyActivationCode() {
+            const codeInput = document.getElementById('activationCodeInput').value.trim();
+            if (codeInput === SPECIAL_SELLER_CODE) {
+                localStorage.setItem('narx_app_activated', 'true');
+                document.getElementById('activationCodeInput').value = '';
+                checkActivationStatus();
+                showToast("Litsenziya kodi tasdiqlandi!");
+            } else {
+                showToast("Xato kod!", "error");
+            }
+        }
+
+        function lockActivation() {
+            localStorage.removeItem('narx_app_activated');
+            checkActivationStatus();
+        }
 
         supabaseClient.auth.onAuthStateChange((event, session) => {
             currentUser = session?.user || null;
@@ -486,9 +764,12 @@
                 loggedOutView.style.display = "none";
                 loggedInView.style.display = "block";
                 navMenu.style.display = "flex";
-                document.getElementById("userEmailDisplay").textContent = currentUser.email;
+                
+                const metaName = currentUser.user_metadata?.username || currentUser.email.split('@')[0];
+                document.getElementById("userNameDisplay").textContent = metaName;
+                document.getElementById("userHandleDisplay").textContent = "@" + metaName;
 
-                if (currentUser.email === ADMIN_EMAIL) {
+                if (metaName.toLowerCase() === ADMIN_USERNAME.toLowerCase()) {
                     adminNavBtn.style.display = "block";
                     fetchReportedProducts();
                 } else {
@@ -496,7 +777,7 @@
                 }
 
                 const activeTab = document.querySelector('.tab-content.active');
-                if (activeTab && activeTab.id === 'profileTab' && !document.getElementById('authEmail').value) {
+                if (!activeTab || activeTab.id === 'profileTab') {
                     switchTab('productsTab', document.querySelector('.nav-btn'));
                 }
             } else {
@@ -515,52 +796,77 @@
         }
 
         async function loginUser() {
-            const email = document.getElementById("authEmail").value.trim();
+            let username = document.getElementById("authUsername").value.trim().toLowerCase();
             const password = document.getElementById("authPassword").value.trim();
 
-            if (!email || !password) {
-                alert("Iltimos, email va parolni kiriting!");
+            if (!username || !password) {
+                showToast("Maydonlarni to'ldiring!", "error");
                 return;
             }
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            let savedEmail = localStorage.getItem(`user_email_${username}`);
+            if (!savedEmail) {
+                let userEmailInput = prompt("Siz bu brauzerda birinchi marta bu nomdan kirayapsiz. Oldin ro'yxatdan o'tgan Emailingizni kiriting:");
+                if (!userEmailInput) return;
+                savedEmail = userEmailInput.trim().toLowerCase();
+                localStorage.setItem(`user_email_${username}`, savedEmail);
+            }
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ 
+                email: savedEmail, 
+                password: password 
+            });
+
             if (error) {
-                alert("Xatolik: " + error.message);
+                showToast("Login yoki parol noto'g'ri!", "error");
                 return;
             }
             currentUser = data.user;
             updateAuthUI();
-            alert("Muvaffaqiyatli kirdingiz!");
+            showToast("Muvaffaqiyatli kirdingiz!");
             switchTab('productsTab', document.querySelector('.nav-btn'));
         }
 
         async function registerUser() {
-            const email = document.getElementById("authEmail").value.trim();
+            const email = document.getElementById("authEmail").value.trim().toLowerCase();
+            const username = document.getElementById("authUsername").value.trim();
             const password = document.getElementById("authPassword").value.trim();
 
-            if (!email || !password) {
-                alert("Iltimos, email va parolni kiriting!");
+            if (!email || !username || !password) {
+                showToast("Barcha maydonlarni to'ldiring!", "error");
                 return;
             }
 
             if (!validatePassword(password)) {
-                alert("Xatolik: Parol faqat raqamlardan iborat bo'lishi va 6 tadan ko'p (kamida 7 ta raqam) bo'lishi shart!");
+                showToast("Parol kamida 7 ta raqamdan iborat bo'lishi shart!", "error");
                 return;
             }
 
-            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+            const { data, error } = await supabaseClient.auth.signUp({ 
+                email: email, 
+                password: password,
+                options: {
+                    data: { username: username }
+                }
+            });
+
             if (error) {
-                alert("Xatolik: " + error.message);
+                showToast("Bu email yoki nom band / xato.", "error");
                 return;
             }
-            alert("Muvaffaqiyatli ro'yxatdan o'tdingiz! Endi kirish tugmasini bosing.");
+
+            localStorage.setItem(`user_email_${username.toLowerCase()}`, email);
+
+            showToast("Muvaffaqiyatli ro'yxatdan o'tdingiz!");
+            setAuthMode('login');
+            document.getElementById("authUsername").value = username;
         }
 
         async function logoutUser() {
             await supabaseClient.auth.signOut();
             currentUser = null;
             updateAuthUI();
-            alert("Tizimdan chiqdingiz.");
+            showToast("Tizimdan chiqdingiz.");
         }
 
         function switchTab(tabId, btnElement) {
@@ -574,16 +880,17 @@
             if (btnElement) btnElement.classList.add('active');
 
             if (tabId === 'favoritesTab') {
+                document.getElementById('favoritesSearchInput').value = "";
                 displayFavorites();
             }
 
-            if (tabId === 'adminTab' && currentUser && currentUser.email === ADMIN_EMAIL) {
+            if (tabId === 'adminTab' && currentUser) {
                 fetchReportedProducts();
             }
         }
 
-        function previewFileName(input) {
-            const fileChosenText = document.getElementById('fileChosenText');
+        function previewFileName(input, targetId) {
+            const fileChosenText = document.getElementById(targetId);
             if (input.files && input.files[0]) {
                 fileChosenText.textContent = "Tanlandi: " + input.files[0].name;
                 fileChosenText.style.color = "#38bdf8";
@@ -623,7 +930,7 @@
                 let orientirText = e.orientir ? ` (Mo'ljal: ${e.orientir})` : '';
                 shareText += `- ${e.store}${orientirText}: ${priceFormatted} so'm\n`;
             });
-            shareText += `\n"Narx-qiyosla" ilovasi orqali topildi!`;
+            shareText += `\n"Bozor" ilovasi orqali topildi!`;
 
             if (navigator.share) {
                 navigator.share({
@@ -632,7 +939,7 @@
                 }).catch(() => {});
             } else {
                 navigator.clipboard.writeText(shareText);
-                alert("Mahsulot ma'lumotlari nusxalandi! Istalgan joyga tashlashingiz mumkin.");
+                showToast("Ma'lumot nusxalandi!");
             }
         }
 
@@ -693,7 +1000,6 @@
                 .order('price', { ascending: true });
 
             if (error) {
-                console.error("Xatolik yuz berdi:", error.message);
                 document.getElementById("productList").innerHTML = `<div style="text-align: center; color: #f87171; padding: 20px;">Ma'lumotlarni yuklab bo'lmadi.</div>`;
                 return;
             }
@@ -717,7 +1023,7 @@
             });
 
             if (Object.keys(grouped).length === 0) {
-                listContainer.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px;">${isFavoritesView ? "Hozircha saqlangan mahsulotlar yo'q." : "Hech qanday mahsulot topilmadi."}</div>`;
+                listContainer.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px;">${isFavoritesView ? "Hozircha saqlangan mahsulotlar yo'q yoki mos keladigani topilmadi." : "Hech qanday mahsulot topilmadi."}</div>`;
                 return;
             }
 
@@ -732,11 +1038,17 @@
 
                 let header = document.createElement("div");
                 header.className = "product-header";
+                
+                let isActivated = localStorage.getItem('narx_app_activated') === 'true';
+                let headerActionsHtml = `<button class="icon-btn" onclick="shareProduct('${escapeHtml(productName)}')" title="Ulashish">🔗</button>`;
+                if (!isActivated) {
+                    headerActionsHtml += `<button class="icon-btn" onclick="toggleFavorite('${escapeHtml(productName)}')" title="Saqlash">${isFav ? '💾' : '📥'}</button>`;
+                }
+
                 header.innerHTML = `
                     <span>${escapeHtml(productName)}</span>
                     <div class="header-actions">
-                        <button class="icon-btn" onclick="shareProduct('${escapeHtml(productName)}')" title="Ulashish">🔗</button>
-                        <button class="icon-btn" onclick="toggleFavorite('${escapeHtml(productName)}')" title="Saqlash">${isFav ? '💾' : '📥'}</button>
+                        ${headerActionsHtml}
                     </div>
                 `;
                 card.appendChild(header);
@@ -791,12 +1103,15 @@
                         contentDiv.appendChild(reviewSec);
                     }
 
-                    let uploaderInfo = e.user_email ? `Kiritdi: ${e.user_email.split('@')[0]}...` : "Noma'lum";
+                    let uploaderInfo = e.user_email ? `Kiritdi: @${e.user_email.split('@')[0]}` : "Noma'lum";
                     let footerDiv = document.createElement("div");
                     footerDiv.className = "card-footer";
                     footerDiv.innerHTML = `
                         <span>${uploaderInfo}</span>
-                        <button type="button" class="report-btn" onclick="reportProduct('${e.id}')">⚠️ Shikoyat</button>
+                        <div class="footer-buttons">
+                            <button type="button" class="edit-btn" onclick="promptEditProduct('${e.id}')">✏️ Tahrirlash</button>
+                            <button type="button" class="report-btn" onclick="reportProduct('${e.id}')">⚠️ Shikoyat</button>
+                        </div>
                     `;
                     contentDiv.appendChild(footerDiv);
 
@@ -816,10 +1131,170 @@
             displayProducts(products, "favoritesList", true);
         }
 
+        function filterFavorites() {
+            const query = document.getElementById("favoritesSearchInput").value.toLowerCase().trim();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            displayProducts(filtered, "favoritesList", true);
+        }
+
         function filterProducts() {
             const query = document.getElementById("searchInput").value.toLowerCase();
             const filtered = products.filter(p => p.name.toLowerCase().includes(query));
             displayProducts(filtered);
+        }
+
+        function promptEditProduct(productId) {
+            const existingModal = document.getElementById('editAuthModal');
+            if (existingModal) existingModal.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'editAuthModal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 style="color: #f59e0b; margin-top: 0; font-size: 16px;">🔒 Litsenziya kodi kerak</h3>
+                    <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">Mahsulotni tahrirlash uchun maxsus litsenziya kodini kiriting:</p>
+                    <input type="password" id="editActivationInput" placeholder="Maxsus kodni kiriting..." onkeydown="if(event.key==='Enter'){event.preventDefault(); verifyAndOpenEditModal('${productId}');}" autocomplete="off" style="margin-bottom: 10px;">
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn" onclick="verifyAndOpenEditModal('${productId}')" style="background: #f59e0b; padding: 8px; font-size: 13px;">Tasdiqlash</button>
+                        <button class="action-btn" onclick="document.getElementById('editAuthModal').remove()" style="background: #475569; padding: 8px; font-size: 13px;">Bekor qilish</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function verifyAndOpenEditModal(productId) {
+            const codeInput = document.getElementById('editActivationInput').value.trim();
+            if (codeInput !== SPECIAL_SELLER_CODE) {
+                showToast("Xato litsenziya kodi!", "error");
+                return;
+            }
+            document.getElementById('editAuthModal').remove();
+            openEditModal(productId);
+        }
+
+        async function openEditModal(productId) {
+            const product = products.find(p => String(p.id) === String(productId));
+            if (!product) {
+                showToast("Mahsulot topilmadi!", "error");
+                return;
+            }
+
+            const existingModal = document.getElementById('editProductModal');
+            if (existingModal) existingModal.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'editProductModal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+                    <h3 style="color: #38bdf8; margin-top: 0; font-size: 16px;">✏️ Mahsulotni tahrirlash</h3>
+                    
+                    <label style="font-size: 11px; color: #94a3b8;">Mahsulot nomi:</label>
+                    <input type="text" id="editName" value="${escapeHtml(product.name)}" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveEditedProduct('${productId}');}">
+                    
+                    <label style="font-size: 11px; color: #94a3b8;">Do'kon nomi:</label>
+                    <input type="text" id="editStore" value="${escapeHtml(product.store)}" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveEditedProduct('${productId}');}">
+                    
+                    <label style="font-size: 11px; color: #94a3b8;">Mo'ljal / Orientir:</label>
+                    <input type="text" id="editOrientir" value="${escapeHtml(product.orientir || '')}" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveEditedProduct('${productId}');}">
+                    
+                    <label style="font-size: 11px; color: #94a3b8;">Narxi (so'm):</label>
+                    <input type="number" id="editPrice" value="${product.price}" step="1000" min="0" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveEditedProduct('${productId}');}">
+                    
+                    <label style="font-size: 11px; color: #94a3b8;">Qolgan soni (dona):</label>
+                    <input type="number" id="editStock" value="${product.stock !== null ? product.stock : ''}" min="0" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveEditedProduct('${productId}');}">
+                    
+                    <label style="font-size: 11px; color: #94a3b8;">Rasm (Yangilash ixtiyoriy):</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="editImage" class="file-upload-input" accept="image/*" onchange="previewFileName(this, 'editFileChosenText')">
+                        <label for="editImage" class="file-upload-btn">
+                            <span class="file-main-text">📁 Rasmni o'zgartirish</span>
+                            <span class="file-sub-text" id="editFileChosenText">Yangi rasm tanlanmagan</span>
+                        </label>
+                    </div>
+
+                    <label style="font-size: 11px; color: #94a3b8;">Baholash:</label>
+                    <select id="editRating">
+                        <option value="">Baholashni tanlang</option>
+                        <option value="5" ${product.rating === 5 ? 'selected' : ''}>⭐⭐⭐⭐⭐ (A'lo sifat)</option>
+                        <option value="4" ${product.rating === 4 ? 'selected' : ''}>⭐⭐⭐⭐ (Yaxshi)</option>
+                        <option value="3" ${product.rating === 3 ? 'selected' : ''}>⭐⭐⭐ (O'rtacha)</option>
+                        <option value="2" ${product.rating === 2 ? 'selected' : ''}>⭐⭐ (Yomon)</option>
+                        <option value="1" ${product.rating === 1 ? 'selected' : ''}>⭐ (Juda yomon)</option>
+                    </select>
+
+                    <label style="font-size: 11px; color: #94a3b8;">Izoh:</label>
+                    <textarea id="editReview" rows="2">${escapeHtml(product.review || '')}</textarea>
+
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button class="action-btn" onclick="saveEditedProduct('${productId}')" style="background: #10b981; padding: 10px; font-size: 13px;">Saqlash</button>
+                        <button class="action-btn" onclick="document.getElementById('editProductModal').remove()" style="background: #475569; padding: 10px; font-size: 13px;">Bekor qilish</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function saveEditedProduct(productId) {
+            const name = document.getElementById('editName').value.trim();
+            const store = document.getElementById('editStore').value.trim();
+            const orientir = document.getElementById('editOrientir').value.trim();
+            const price = document.getElementById('editPrice').value.trim();
+            const stock = document.getElementById('editStock').value.trim();
+            const rating = document.getElementById('editRating').value;
+            const review = document.getElementById('editReview').value.trim();
+            const imageFile = document.getElementById('editImage').files[0];
+
+            if (!name || !store || !orientir || !price) {
+                showToast("Majburiy maydonlarni to'ldiring!", "error");
+                return;
+            }
+
+            const product = products.find(p => String(p.id) === String(productId));
+            let imageUrl = product ? product.image : null;
+
+            if (imageFile) {
+                const fileName = `${Date.now()}_${imageFile.name}`;
+                const { error: uploadError } = await supabaseClient.storage
+                    .from('product-images')
+                    .upload(fileName, imageFile);
+
+                if (uploadError) {
+                    showToast("Rasmni yuklashda xatolik!", "error");
+                    return;
+                }
+
+                const { data: publicUrlData } = supabaseClient.storage
+                    .from('product-images')
+                    .getPublicUrl(fileName);
+
+                imageUrl = publicUrlData.publicUrl;
+            }
+
+            const { error } = await supabaseClient
+                .from('products')
+                .update({
+                    name: name,
+                    store: store,
+                    orientir: orientir,
+                    price: parseFloat(price),
+                    stock: stock ? parseInt(stock) : null,
+                    rating: rating ? parseInt(rating) : null,
+                    review: review,
+                    image: imageUrl
+                })
+                .eq('id', productId);
+
+            if (error) {
+                showToast("Tahrirlashda xatolik!", "error");
+                return;
+            }
+
+            showToast("Muvaffaqiyatli tahrirlandi!");
+            document.getElementById('editProductModal').remove();
+            fetchProducts();
         }
 
         function reportProduct(productId) {
@@ -828,187 +1303,154 @@
 
             const modal = document.createElement('div');
             modal.id = 'reportModal';
-            modal.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 9999;
-            `;
-
+            modal.className = 'modal-overlay';
             modal.innerHTML = `
-                <div style="background: #1e293b; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-                    <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 18px;">⚠️ Shikoyat sababi</h3>
-                    <textarea id="reportReasonInput" placeholder="Sababini yozing (masalan: Narxi boshqacha ekan)..." style="width: 100%; height: 80px; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; resize: none; margin-bottom: 15px; box-sizing: border-box;"></textarea>
-                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                        <button type="button" id="cancelReportBtn" style="background: #475569; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Bekor qilish</button>
-                        <button type="button" id="submitReportBtn" style="background: #ef4444; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Yuborish</button>
+                <div class="modal-content">
+                    <h3 style="color: #f87171; margin-top: 0; font-size: 16px;">⚠️ Mahsulotdan shikoyat qilish</h3>
+                    <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">Nima uchun bu ma'lumot noto'g'ri deb o'ylaysiz?</p>
+                    <textarea id="reportReasonText" placeholder="Sababini yozing..." rows="3" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); submitReport('${productId}');}" style="margin-bottom: 10px;"></textarea>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn" onclick="submitReport('${productId}')" style="background: #ef4444; padding: 8px; font-size: 13px;">Yuborish</button>
+                        <button class="action-btn" onclick="document.getElementById('reportModal').remove()" style="background: #475569; padding: 8px; font-size: 13px;">Bekor qilish</button>
                     </div>
                 </div>
             `;
-
             document.body.appendChild(modal);
+        }
 
-            document.getElementById('cancelReportBtn').onclick = () => modal.remove();
-            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+        async function submitReport(productId) {
+            const reason = document.getElementById('reportReasonText').value.trim();
+            if (!reason) {
+                showToast("Sababini yozing!", "error");
+                return;
+            }
 
-            document.getElementById('submitReportBtn').onclick = async () => {
-                const reason = document.getElementById('reportReasonInput').value.trim();
-                if (!reason) {
-                    alert("Iltimos, sababini yozing!");
-                    return;
-                }
+            const username = currentUser ? (currentUser.user_metadata?.username || currentUser.email.split('@')[0]) : 'Noma’lum';
 
-                await supabaseClient.from('reports').insert([{
-                    product_id: productId,
-                    user_email: currentUser ? currentUser.email : 'Mehmon',
-                    reason: reason
-                }]);
+            const { error } = await supabaseClient.from('reports').insert([
+                { product_id: productId, user_email: username, reason: reason }
+            ]);
 
-                modal.remove();
-                alert("Shikoyatingiz yuborildi. Bu mahsulotda endi ogohlantirish belgisi paydo bo'ladi!");
-                fetchProducts();
-            };
+            if (error) {
+                showToast("Xatolik yuz berdi!", "error");
+                return;
+            }
+
+            showToast("Shikoyatingiz adminga yuborildi!");
+            document.getElementById('reportModal').remove();
+            await fetchReportsList();
+            displayProducts(products);
         }
 
         async function fetchReportedProducts() {
-            const container = document.getElementById("adminReportedList");
-            container.innerHTML = `<div class="loader">Yuklanmoqda...</div>`;
+            const adminListDiv = document.getElementById('adminReportedList');
+            adminListDiv.innerHTML = '<div class="loader">Yuklanmoqda...</div>';
 
-            const { data: reportsData, error } = await supabaseClient
-                .from('reports')
-                .select('id, product_id, user_email, reason, created_at')
-                .order('created_at', { ascending: false });
-
+            const { data, error } = await supabaseClient.from('reports').select('*');
             if (error) {
-                container.innerHTML = `<div style="color: #f87171;">Xatolik yuz berdi.</div>`;
+                adminListDiv.innerHTML = `<div style="color: #f87171; text-align: center;">Xatolik yuz berdi</div>`;
                 return;
             }
 
-            if (!reportsData || reportsData.length === 0) {
-                container.innerHTML = `<div style="color: #94a3b8; text-align: center; padding: 20px;">Hozircha hech qanday shikoyat yo'q.</div>`;
+            if (!data || data.length === 0) {
+                adminListDiv.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 15px;">Hozircha shikoyatlar yo'q.</div>`;
                 return;
             }
 
-            container.innerHTML = "";
-            for (let rep of reportsData) {
-                const { data: prodData } = await supabaseClient
-                    .from('products')
-                    .select('name, store, price')
-                    .eq('id', rep.product_id)
-                    .single();
-
-                let prodName = prodData ? `${prodData.name} (${prodData.store})` : "O'chirilgan mahsulot";
-
-                let card = document.createElement("div");
-                card.className = "product-card";
-                card.style.border = "1px solid #f43f5e";
-                
-                card.innerHTML = `
-                    <div style="font-weight: bold; color: #f43f5e; margin-bottom: 5px;">${escapeHtml(prodName)}</div>
-                    <div style="font-size: 12px; background: rgba(244, 63, 94, 0.1); padding: 8px; border-radius: 6px; margin-bottom: 10px;">
-                        <strong>Sabab:</strong> "${escapeHtml(rep.reason)}"<br>
-                        <span style="color: #94a3b8; font-size: 11px;">Yubordi: ${rep.user_email}</span>
-                    </div>
-                    <button onclick="clearReport('${rep.id}')" style="width: 100%; background: #ef4444; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">Shikoyatni o'chirish (Tozalash)</button>
+            adminListDiv.innerHTML = "";
+            data.forEach(rep => {
+                let div = document.createElement('div');
+                div.className = "product-card";
+                div.innerHTML = `
+                    <p style="font-size: 12px; color: #fca5a5; margin: 0 0 5px 0;"><strong>Mahsulot ID:</strong> ${rep.product_id}</p>
+                    <p style="font-size: 12px; color: #cbd5e1; margin: 0 0 5px 0;"><strong>Kimdan:</strong> @${escapeHtml(rep.user_email)}</p>
+                    <p style="font-size: 12px; color: #f8fafc; margin: 0 0 10px 0;"><strong>Sabab:</strong> ${escapeHtml(rep.reason)}</p>
+                    <button class="action-btn" onclick="deleteReportAndProduct('${rep.id}', '${rep.product_id}')" style="background: #ef4444; padding: 6px; font-size: 11px;">O'chirish / Tasdiqlash</button>
                 `;
-                container.appendChild(card);
-            }
+                adminListDiv.appendChild(div);
+            });
         }
 
-        async function clearReport(reportId) {
-            if (!confirm("Bu shikoyatni o'chirishni xohlaysizmi?")) return;
+        async function deleteReportAndProduct(reportId, productId) {
+            if (!confirm("Haqiqatan ham bu shikoyatni hal qilib, mahsulotni o'chirib tashlamoqchimisiz?")) return;
 
-            const { error } = await supabaseClient.from('reports').delete().eq('id', reportId);
-            if (error) {
-                alert("Xatolik: " + error.message);
-            } else {
-                alert("Shikoyat tozalandi.");
-                fetchReportedProducts();
-                fetchProducts();
-            }
+            await supabaseClient.from('reports').delete().eq('id', reportId);
+            await supabaseClient.from('products').delete().eq('id', productId);
+
+            showToast("Mahsulot o'chirildi!");
+            fetchReportedProducts();
+            fetchProducts();
         }
 
         async function addProduct() {
-            if (!currentUser) {
-                alert("Mahsulot qo'shish uchun avval tizimga kiring!");
-                switchTab('profileTab', null);
+            const name = document.getElementById('newName').value.trim();
+            const store = document.getElementById('newStore').value.trim();
+            const orientir = document.getElementById('newOrientir').value.trim();
+            const price = document.getElementById('newPrice').value.trim();
+            const stock = document.getElementById('newStock').value.trim();
+            const rating = document.getElementById('newRating').value;
+            const review = document.getElementById('newReview').value.trim();
+            const imageFile = document.getElementById('newImage').files[0];
+
+            if (!name || !store || !orientir || !price) {
+                showToast("Majburiy maydonlarni to'ldiring!", "error");
                 return;
             }
 
-            const name = document.getElementById("newName").value.trim();
-            const store = document.getElementById("newStore").value.trim();
-            const orientir = document.getElementById("newOrientir").value.trim();
-            const priceInput = document.getElementById("newPrice").value;
-            const price = Number(priceInput);
-
-            if (!name || !store || !orientir || !priceInput || isNaN(price)) {
-                alert("Xatolik: Mahsulot nomi, do'kon, mo'ljal va narxi kiritilishi shart!");
-                return;
-            }
-
-            const stockInput = document.getElementById("newStock").value;
-            const stock = stockInput !== "" ? Number(stockInput) : null;
-            const ratingInput = document.getElementById("newRating").value;
-            const rating = ratingInput !== "" ? Number(ratingInput) : null;
-            const review = document.getElementById("newReview").value.trim();
-            const imageInput = document.getElementById("newImage");
-
-            let imageUrl = "";
-
-            if (imageInput.files && imageInput.files[0]) {
-                const file = imageInput.files[0];
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
-                const filePath = `${fileName}`;
-
-                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+            let imageUrl = null;
+            if (imageFile) {
+                const fileName = `${Date.now()}_${imageFile.name}`;
+                const { error: uploadError } = await supabaseClient.storage
                     .from('product-images')
-                    .upload(filePath, file);
+                    .upload(fileName, imageFile);
 
                 if (uploadError) {
-                    alert("Rasmni yuklashda xatolik: " + uploadError.message);
+                    showToast("Rasmni yuklashda xatolik!", "error");
                     return;
                 }
 
-                const { data: publicURLData } = supabaseClient.storage
+                const { data: publicUrlData } = supabaseClient.storage
                     .from('product-images')
-                    .getPublicUrl(filePath);
+                    .getPublicUrl(fileName);
 
-                imageUrl = publicURLData.publicUrl;
+                imageUrl = publicUrlData.publicUrl;
             }
 
-            const { error } = await supabaseClient
-                .from('products')
-                .insert([{ 
-                    name, 
-                    store, 
-                    orientir,
-                    price, 
-                    stock, 
-                    rating, 
-                    review, 
+            const username = currentUser ? (currentUser.user_metadata?.username || currentUser.email.split('@')[0]) : null;
+
+            const { error } = await supabaseClient.from('products').insert([
+                {
+                    name: name,
+                    store: store,
+                    orientir: orientir,
+                    price: parseFloat(price),
+                    stock: stock ? parseInt(stock) : null,
+                    rating: rating ? parseInt(rating) : null,
+                    review: review,
                     image: imageUrl,
-                    user_id: currentUser.id,
-                    user_email: currentUser.email
-                }]);
+                    user_email: username ? username : null
+                }
+            ]);
 
             if (error) {
-                alert("Xatolik yuz berdi: " + error.message);
+                showToast("Qo'shishda xatolik!", "error");
                 return;
             }
 
-            document.getElementById("newName").value = "";
-            document.getElementById("newStore").value = "";
-            document.getElementById("newOrientir").value = "";
-            document.getElementById("newPrice").value = "";
-            document.getElementById("newStock").value = "";
-            document.getElementById("newImage").value = "";
-            document.getElementById("fileChosenText").textContent = "Fayl tanlanmagan";
-            document.getElementById("fileChosenText").style.color = "#94a3b8";
-            document.getElementById("newRating").value = "";
-            document.getElementById("newReview").value = "";
-            
-            alert("Mahsulot muvaffaqiyatli qo'shildi!");
+            showToast("Mahsulot muvaffaqiyatli qo'shildi!");
+            document.getElementById('newName').value = '';
+            document.getElementById('newStore').value = '';
+            document.getElementById('newOrientir').value = '';
+            document.getElementById('newPrice').value = '';
+            document.getElementById('newStock').value = '';
+            document.getElementById('newRating').value = '';
+            document.getElementById('newReview').value = '';
+            document.getElementById('newImage').value = '';
+            document.getElementById('fileChosenText').textContent = "Fayl tanlanmagan";
+            document.getElementById('fileChosenText').style.color = "#94a3b8";
+
             fetchProducts();
-            switchTab('productsTab', document.querySelectorAll('.nav-btn')[0]);
+            switchTab('productsTab', document.querySelector('.nav-btn'));
         }
     </script>
 </body>

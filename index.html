@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title data-i18n="page_title">Bozor - Shahrixon</title>
+    <title>Bozor - Shahrixon</title>
     <meta name="description" content="Shahrixondagi do'konlarda kiyim-kechak narxlari va sifatini solishtiring.">
     <!-- Supabase Kutubxonasi CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        
+        #langSelector{
+            width: 120px;
+            height: 35px;
+        }
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
             color: #f8fafc;
@@ -35,20 +38,39 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-sizing: border-box;
             margin-top: 5px;
+            position: relative; /* Tizim xabarini konteyner ichida pastda joylashtirish uchun */
+            padding-bottom: 60px; /* Xabar ustini yopib qo'ymasligi uchun joy */
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
         }
 
         h1 { 
-            margin-top: 0; 
+            margin: 0; 
             color: #38bdf8;
             font-size: 22px; 
-            text-align: center; 
             font-weight: 800;
-            margin-bottom: 15px;
+        }
+
+        .lang-select {
+            background: #1e293b;
+            color: #38bdf8;
+            border: 1px solid #475569;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
         }
 
         .nav-menu {
             display: flex;
-            gap: 3px;
+            gap: 4px;
             margin-bottom: 15px;
             background: rgba(15, 23, 42, 0.7);
             padding: 4px;
@@ -62,8 +84,8 @@
             min-width: 65px;
             background: transparent;
             border: none;
-            padding: 8px 3px;
-            font-size: 10px;
+            padding: 8px 4px;
+            font-size: 11px;
             font-weight: 600;
             color: #94a3b8;
             border-radius: 8px;
@@ -120,21 +142,44 @@
 
         input, select, textarea {
             width: 100%;
-            padding: 12px 14px;
-            font-size: 16px;
+            height: 44px;
+            padding: 0 14px;
+            font-size: 14px;
             border-radius: 10px;
             border: 1px solid #475569;
-            background: #0f172a;
+            background: rgba(15, 23, 42, 0.6);
             color: white;
             box-sizing: border-box;
             margin-bottom: 10px;
             transition: all 0.3s ease;
+            outline: none;
+        }
+
+        textarea {
+            height: auto;
+            padding: 12px 14px;
+            resize: vertical;
         }
 
         input:focus, select:focus, textarea:focus {
-            outline: none;
             border-color: #6366f1;
             box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+        .password-wrapper input {
+            padding-right: 40px;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 38%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            user-select: none;
         }
 
         .file-upload-wrapper {
@@ -151,7 +196,7 @@
             align-items: center;
             justify-content: center;
             padding: 12px;
-            background: #0f172a;
+            background: rgba(15, 23, 42, 0.6);
             border: 2px dashed #475569;
             border-radius: 10px;
             cursor: pointer;
@@ -177,7 +222,7 @@
             background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
             color: white;
             border: none;
-            padding: 12px;
+            height: 44px;
             font-size: 15px;
             border-radius: 10px;
             cursor: pointer;
@@ -331,35 +376,16 @@
             gap: 6px;
         }
 
-        .report-btn {
+        .report-btn, .edit-btn, .rate-btn {
             background: transparent;
-            border: 1px solid #ef4444;
-            color: #f87171;
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 10px;
         }
-
-        .edit-btn {
-            background: transparent;
-            border: 1px solid #38bdf8;
-            color: #38bdf8;
-            padding: 2px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 10px;
-        }
-
-        .rate-btn {
-            background: transparent;
-            border: 1px solid #facc15;
-            color: #facc15;
-            padding: 2px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 10px;
-        }
+        .report-btn { border: 1px solid #ef4444; color: #f87171; }
+        .edit-btn { border: 1px solid #38bdf8; color: #38bdf8; }
+        .rate-btn { border: 1px solid #facc15; color: #facc15; }
 
         .profile-box {
             background: rgba(15, 23, 42, 0.5);
@@ -368,7 +394,6 @@
             text-align: center;
         }
 
-        /* --- AUTH DESIGN --- */
         .auth-container {
             transition: all 0.4s ease;
             border-radius: 14px;
@@ -383,17 +408,11 @@
 
         .auth-container.mode-login .auth-title {
             color: #c084fc;
-            text-shadow: 0 0 10px rgba(192, 132, 252, 0.4);
         }
 
         .auth-container.mode-login input {
-            background: #111827;
+            background: rgba(17, 24, 39, 0.8);
             border-color: #7c3aed;
-        }
-
-        .auth-container.mode-login input:focus {
-            border-color: #a78bfa;
-            box-shadow: 0 0 10px rgba(167, 139, 250, 0.4);
         }
 
         .auth-container.mode-register {
@@ -404,23 +423,17 @@
 
         .auth-container.mode-register .auth-title {
             color: #34d399;
-            letter-spacing: 0.5px;
         }
 
         .auth-container.mode-register input {
-            background: #022c22;
+            background: rgba(2, 44, 34, 0.8);
             border-color: #059669;
-        }
-
-        .auth-container.mode-register input:focus {
-            border-color: #34d399;
-            box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
         }
 
         .auth-toggle-bar {
             display: flex;
             gap: 6px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             background: rgba(0, 0, 0, 0.4);
             padding: 4px;
             border-radius: 10px;
@@ -430,7 +443,7 @@
             flex: 1;
             background: transparent;
             border: none;
-            padding: 8px;
+            height: 36px;
             font-size: 12px;
             font-weight: bold;
             border-radius: 8px;
@@ -441,17 +454,29 @@
         .auth-toggle-btn.login-active-tab {
             background: #7c3aed;
             color: white;
-            box-shadow: 0 2px 10px rgba(124, 58, 237, 0.4);
         }
 
         .auth-toggle-btn.register-active-tab {
             background: #059669;
             color: white;
-            box-shadow: 0 2px 10px rgba(5, 150, 105, 0.4);
         }
 
         .auth-toggle-btn.inactive {
             color: #94a3b8;
+        }
+
+        .forgot-password-link {
+            display: block;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #38bdf8;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            width: 100%;
+            text-align: center;
         }
 
         .loader {
@@ -488,117 +513,125 @@
 </head>
 <body>
 
-    <div class="container">
-        <h1 data-i18n="main_title">Bozor</h1>
+    <div class="container" id="mainContainer">
+        <div class="top-bar">
+            <h1 id="appTitle">Bozor</h1>
+            <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
+                <option value="uz">O'zbekcha</option>
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+            </select>
+        </div>
         
         <div class="nav-menu" id="navMenu" style="display: none;">
-            <button class="nav-btn active" onclick="switchTab('productsTab', this)" data-i18n="nav_products">Mahsulotlar</button>
-            <button class="nav-btn" id="favoritesNavBtn" onclick="switchTab('favoritesTab', this)" data-i18n="nav_favorites">💾 Saqlanganlar</button>
-            <button class="nav-btn" onclick="switchTab('addTab', this)" data-i18n="nav_add">➕ Qo'shish</button>
-            <button class="nav-btn" onclick="switchTab('profileTab', this)" data-i18n="nav_profile">👤 Profil</button>
-            <button class="nav-btn" id="adminNavBtn" onclick="switchTab('adminTab', this)" style="display:none; color: #f43f5e;" data-i18n="nav_admin">🛡️ Admin</button>
+            <button class="nav-btn active" id="navProducts" onclick="switchTab('productsTab', this)">Mahsulotlar</button>
+            <button class="nav-btn" id="navFavorites" onclick="switchTab('favoritesTab', this)">💾 Saqlanganlar</button>
+            <button class="nav-btn" id="navAdd" onclick="switchTab('addTab', this)">➕ Qo'shish</button>
+            <button class="nav-btn" id="navProfile" onclick="switchTab('profileTab', this)">👤 Profil</button>
+            <button class="nav-btn" id="adminNavBtn" onclick="switchTab('adminTab', this)" style="display:none; color: #f43f5e;">🛡️ Admin</button>
         </div>
-        <!-- Oddiy menyu ko'rinishi -->
-<select id="languageSelect" onchange="changeLanguage(this.value)">
-  <option value="uz">O'zbekcha</option>
-  <option value="en">English</option>
-  <option value="ru">Русский</option>
-</select>
 
         <!-- 1. Mahsulotlar Tab -->
         <div id="productsTab" class="tab-content active">
             <div class="search-box">
-                <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Qidirish (masalan: Qishki Kurtka)..." oninput="handleSearchInput()" onkeydown="handleEnterKey(event, 'search')" autocomplete="off">
+                <input type="text" id="searchInput" placeholder="Qidirish (masalan: Qishki Kurtka)..." oninput="handleSearchInput()" onkeydown="handleEnterKey(event, 'search')" autocomplete="off">
                 <div id="suggestionsList" class="suggestions-list"></div>
             </div>
             <div id="productList">
-                <div class="loader" data-i18n="loading_data">Ma'lumotlar yuklanmoqda...</div>
+                <div class="loader" id="loadingText">Ma'lumotlar yuklanmoqda...</div>
             </div>
         </div>
 
         <!-- 2. Saqlanganlar Tab -->
         <div id="favoritesTab" class="tab-content">
-            <h3 style="color: #fb7185; font-size: 16px; margin-top: 0;" data-i18n="saved_products_title">💾 Saqlangan mahsulotlar</h3>
+            <h3 id="favTitle" style="color: #fb7185; font-size: 16px; margin-top: 0;">💾 Saqlangan mahsulotlar</h3>
             <div class="search-box">
-                <input type="text" id="favoritesSearchInput" data-i18n-placeholder="search_saved_placeholder" placeholder="Saqlanganlardan qidirish..." oninput="filterFavorites()" onkeydown="handleEnterKey(event, 'favoritesSearch')" autocomplete="off">
+                <input type="text" id="favoritesSearchInput" placeholder="Saqlanganlardan qidirish..." oninput="filterFavorites()" onkeydown="handleEnterKey(event, 'favoritesSearch')" autocomplete="off">
             </div>
             <div id="favoritesList">
-                <div style="text-align: center; color: #94a3b8; padding: 20px;" data-i18n="no_saved_products">Hozircha saqlangan mahsulotlar yo'q.</div>
+                <div id="noFavText" style="text-align: center; color: #94a3b8; padding: 20px;">Hozircha saqlangan mahsulotlar yo'q.</div>
             </div>
         </div>
 
         <!-- 3. Qo'shish Tab -->
         <div id="addTab" class="tab-content">
             <div id="activationLockSection" class="profile-box" style="margin-bottom: 15px;">
-                <h3 style="color: #facc15; font-size: 15px; margin-top: 0;" data-i18n="license_required_title">🔒 Maxsus litsenziya kodi talab etiladi</h3>
-                <p style="font-size: 11px; color: #94a3b8; margin-bottom: 12px;" data-i18n="license_required_desc">Do'kondan ma'lumot kiritish uchun sotuvchi tomonidan berilgan maxsus aktivatsiya kodini kiriting:</p>
-                <input type="password" id="activationCodeInput" data-i18n-placeholder="enter_special_code" placeholder="Maxsus kodni kiriting..." onkeydown="handleEnterKey(event, 'activation')" autocomplete="off">
-                <button class="action-btn" onclick="verifyActivationCode()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 10px; font-size: 13px;" data-i18n="verify_code_btn">Kodni tasdiqlash</button>
+                <h3 id="lockTitle" style="color: #facc15; font-size: 15px; margin-top: 0;">🔒 Maxsus litsenziya kodi talab etiladi</h3>
+                <p id="lockDesc" style="font-size: 11px; color: #94a3b8; margin-bottom: 12px;">Do'kondan ma'lumot kiritish uchun sotuvchi tomonidan berilgan maxsus aktivatsiya kodini kiriting:</p>
+                <input type="password" id="activationCodeInput" placeholder="Maxsus kodni kiriting..." onkeydown="handleEnterKey(event, 'activation')" autocomplete="off">
+                <button class="action-btn" id="lockVerifyBtn" onclick="verifyActivationCode()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Kodni tasdiqlash</button>
             </div>
 
             <div id="addSectionContent" style="display: none;" class="add-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3 style="margin: 0; font-size: 15px; color: #34d399;" data-i18n="license_active">✅ Litsenziya faol</h3>
-                    <button onclick="lockActivation()" style="background: transparent; border: 1px solid #ef4444; color: #f87171; padding: 3px 8px; border-radius: 6px; font-size: 10px; cursor: pointer;" data-i18n="lock_btn">Qulflash</button>
+                    <h3 id="activeLicenseTitle" style="margin: 0; font-size: 15px; color: #34d399;">✅ Litsenziya faol</h3>
+                    <button id="lockBtnText" onclick="lockActivation()" style="background: transparent; border: 1px solid #ef4444; color: #f87171; padding: 3px 8px; border-radius: 6px; font-size: 10px; cursor: pointer;">Qulflash</button>
                 </div>
-                <input type="text" id="newName" data-i18n-placeholder="product_name_placeholder" placeholder="Mahsulot nomi (Majburiy) *" onkeydown="handleEnterKey(event, 'addProduct')" autocomplete="off">
-                <input type="text" id="newStore" data-i18n-placeholder="store_name_placeholder" placeholder="Do'kon nomi (Majburiy) *" onkeydown="handleEnterKey(event, 'addProduct')" autocomplete="off">
-                <input type="text" id="newOrientir" data-i18n-placeholder="orientir_placeholder" placeholder="Mo'ljal / Orientir (Majburiy) *" onkeydown="handleEnterKey(event, 'addProduct')" autocomplete="off">
-                <input type="number" id="newPrice" data-i18n-placeholder="price_placeholder" placeholder="Narxi so'mda (Majburiy) *" step="1000" min="0" onkeydown="handleEnterKey(event, 'addProduct')">
-                <input type="number" id="newStock" data-i18n-placeholder="stock_placeholder" placeholder="Qolgan soni / dona (Ixtiyoriy)" min="0" onkeydown="handleEnterKey(event, 'addProduct')">
+                <input type="text" id="newName" placeholder="Mahsulot nomi (Majburiy) *" onkeydown="handleEnterKey(event, 'addProduct')" autocomplete="off">
+                <input type="text" id="newStore" placeholder="Do'kon nomi (Majburiy) *" onkeydown="handleEnterKey(event, 'addProduct')" autocomplete="off">
+                <input type="text" id="newOrientir" placeholder="Mo'ljal / Orientir (Majburiy) *" onkeydown="handleEnterKey(event, 'addProduct')" autocomplete="off">
+                <input type="number" id="newPrice" placeholder="Narxi so'mda (Majburiy) *" step="1000" min="0" onkeydown="handleEnterKey(event, 'addProduct')">
+                <input type="number" id="newStock" placeholder="Qolgan soni / dona (Ixtiyoriy)" min="0" onkeydown="handleEnterKey(event, 'addProduct')">
                 
                 <div class="file-upload-wrapper">
                     <input type="file" id="newImage" class="file-upload-input" accept="image/*" onchange="previewFileName(this, 'fileChosenText')">
                     <label for="newImage" class="file-upload-btn">
-                        <span class="file-main-text" data-i18n="select_image_btn">📁 Rasm tanlash (Maks: 5MB)</span>
-                        <span class="file-sub-text" id="fileChosenText" data-i18n="file_not_chosen">Fayl tanlanmagan</span>
+                        <span id="fileMainText" class="file-main-text">📁 Rasm tanlash (Maks: 5MB)</span>
+                        <span class="file-sub-text" id="fileChosenText">Fayl tanlanmagan</span>
                     </label>
                 </div>
 
-                <button class="action-btn" onclick="addProduct()" data-i18n="add_btn">Qo'shish</button>
+                <button class="action-btn" id="addProductBtn" onclick="addProduct()">Qo'shish</button>
             </div>
         </div>
 
         <!-- 4. Profil Tab -->
-        <div id="profileTab" class="tab-content">
+        <div id="profileTab" class="tab-content active">
             <div class="profile-box">
-                <h3 style="color: #38bdf8; font-size: 16px; margin-top: 0;" data-i18n="user_profile_title">👤 Foydalanuvchi Profili</h3>
+                <h3 id="profileHeaderTitle" style="color: #38bdf8; font-size: 16px; margin-top: 0;">👤 Foydalanuvchi Profili</h3>
                 
                 <div id="loggedOutView">
                     <div id="authBoxContainer" class="auth-container mode-login">
-                        <h4 id="authBoxTitle" class="auth-title" style="margin-top: 0; font-size: 14px; margin-bottom: 10px;" data-i18n="welcome_system">⚡ Tizimga xush kelibsiz</h4>
+                        <h4 id="authBoxTitle" class="auth-title" style="margin-top: 0; font-size: 14px; margin-bottom: 10px;">⚡ Tizimga xush kelibsiz</h4>
                         
                         <div class="auth-toggle-bar">
-                            <button id="modeLoginBtn" class="auth-toggle-btn login-active-tab" onclick="setAuthMode('login')" data-i18n="login_tab_btn">🔑 Kirish</button>
-                            <button id="modeRegisterBtn" class="auth-toggle-btn inactive" onclick="setAuthMode('register')" data-i18n="register_tab_btn">📝 Ro'yxatdan o'tish</button>
+                            <button id="modeLoginBtn" class="auth-toggle-btn login-active-tab" onclick="setAuthMode('login')">🔑 Kirish</button>
+                            <button id="modeRegisterBtn" class="auth-toggle-btn inactive" onclick="setAuthMode('register')">📝 Ro'yxatdan o'tish</button>
                         </div>
 
-                        <input type="email" id="authEmail" data-i18n-placeholder="email_placeholder" placeholder="Elektron pochta (Email)" autocomplete="email" onkeydown="handleEnterKey(event, 'auth')" style="display: none;">
-                        <input type="text" id="authUsername" data-i18n-placeholder="username_placeholder" placeholder="Email yoki Username kiriting" autocomplete="username" onkeydown="handleEnterKey(event, 'auth')">
-                        <input type="password" id="authPassword" data-i18n-placeholder="password_placeholder" placeholder="Parol" autocomplete="current-password" onkeydown="handleEnterKey(event, 'auth')">
-                        <input type="password" id="authConfirmPassword" data-i18n-placeholder="confirm_password_placeholder" placeholder="Parolni takrorlang" autocomplete="new-password" onkeydown="handleEnterKey(event, 'auth')" style="display: none;">
+                        <input type="email" id="authEmail" placeholder="Elektron pochta (Email)" autocomplete="email" onkeydown="handleEnterKey(event, 'auth')" style="display: none;">
+                        <input type="text" id="authUsername" placeholder="Email yoki Username kiriting" autocomplete="username" onkeydown="handleEnterKey(event, 'auth')">
+                        
+                        <div class="password-wrapper">
+                            <input type="password" id="authPassword" value="123456789" placeholder="Parol" autocomplete="current-password" onkeydown="handleEnterKey(event, 'auth')">
+                            <span class="toggle-password" id="toggleBtn" onclick="togglePassword()">👁️‍🗨️</span>
+                        </div>
+
+                        <input type="password" id="authConfirmPassword" placeholder="Parolni takrorlang" autocomplete="new-password" onkeydown="handleEnterKey(event, 'auth')" style="display: none;">
                         
                         <div style="margin-top: 5px;">
-                            <button id="authActionBtn" class="action-btn" onclick="handleAuthSubmit()" style="padding: 10px; font-size: 13px;" data-i18n="login_btn">Kirish</button>
+                            <button id="authActionBtn" class="action-btn" onclick="handleAuthSubmit()">Kirish</button>
                         </div>
+
+                        <button type="button" id="forgotPasswordBtn" class="forgot-password-link" onclick="openForgotPasswordModal()">Parolingiz esdan chiqdimimi?</button>
                     </div>
                 </div>
 
                 <div id="loggedInView" style="display: none; margin-top: 15px;">
-                    <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 5px;" data-i18n="welcome_back">Xush kelibsiz:</p>
+                    <p id="welcomeUserText" style="font-size: 13px; color: #cbd5e1; margin-bottom: 5px;">Xush kelibsiz:</p>
                     <p id="userNameDisplay" style="font-size: 17px; font-weight: bold; color: #38bdf8; margin-bottom: 2px;"></p>
                     <p id="userHandleDisplay" style="font-size: 11px; color: #94a3b8; margin-bottom: 15px;"></p>
-                    <button class="action-btn" onclick="logoutUser()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 10px; font-size: 13px;" data-i18n="logout_btn">Chiqish</button>
+                    <button class="action-btn" id="logoutBtnText" onclick="logoutUser()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">Chiqish</button>
                 </div>
             </div>
         </div>
 
         <!-- 5. Admin Tab -->
         <div id="adminTab" class="tab-content">
-            <h3 style="color: #f43f5e; font-size: 16px; margin-top: 0;" data-i18n="admin_reports_title">🛡️ Shikoyat qilingan mahsulotlar</h3>
-            <p style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;" data-i18n="admin_reports_desc">Bu yerda foydalanuvchilar shikoyat qilgan mahsulotlar ro'yxati ko'rinadi.</p>
+            <h3 id="adminTitle" style="color: #f43f5e; font-size: 16px; margin-top: 0;">🛡️ Shikoyat qilingan mahsulotlar</h3>
+            <p id="adminDesc" style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">Bu yerda foydalanuvchilar shikoyat qilgan mahsulotlar ro'yxati ko'rinadi.</p>
             <div id="adminReportedList">
-                <div class="loader" data-i18n="loading">Yuklanmoqda...</div>
+                <div class="loader" id="adminLoadingText">Yuklanmoqda...</div>
             </div>
         </div>
     </div>
@@ -610,364 +643,221 @@
         const ADMIN_USERNAME = "abu_bakr"; 
         const SPECIAL_SELLER_CODE = "abubakr_05.01"; 
         
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let products = [];
+        let productReviews = {};
+        let reportedProductIds = new Set();
+        let currentUser = null;
+        let favorites = JSON.parse(localStorage.getItem('narx_favorites')) || [];
+        let currentAuthMode = 'login';
+        let currentLang = localStorage.getItem('narx_lang') || 'uz';
+
         const translations = {
             uz: {
-                page_title: "Bozor - Shahrixon",
-                main_title: "Bozor",
-                nav_products: "Mahsulotlar",
-                nav_favorites: "💾 Saqlanganlar",
-                nav_add: "➕ Qo'shish",
-                nav_profile: "👤 Profil",
-                nav_admin: "🛡️ Admin",
-                search_placeholder: "Qidirish (masalan: Qishki Kurtka)...",
-                loading_data: "Ma'lumotlar yuklanmoqda...",
-                saved_products_title: "💾 Saqlangan mahsulotlar",
-                search_saved_placeholder: "Saqlanganlardan qidirish...",
-                no_saved_products: "Hozircha saqlangan mahsulotlar yo'q.",
-                license_required_title: "🔒 Maxsus litsenziya kodi talab etiladi",
-                license_required_desc: "Do'kondan ma'lumot kiritish uchun sotuvchi tomonidan berilgan maxsus aktivatsiya kodini kiriting:",
-                enter_special_code: "Maxsus kodni kiriting...",
-                verify_code_btn: "Kodni tasdiqlash",
-                license_active: "✅ Litsenziya faol",
-                lock_btn: "Qulflash",
-                product_name_placeholder: "Mahsulot nomi (Majburiy) *",
-                store_name_placeholder: "Do'kon nomi (Majburiy) *",
-                orientir_placeholder: "Mo'ljal / Orientir (Majburiy) *",
-                price_placeholder: "Narxi so'mda (Majburiy) *",
-                stock_placeholder: "Qolgan soni / dona (Ixtiyoriy)",
-                select_image_btn: "📁 Rasm tanlash (Maks: 5MB)",
-                file_not_chosen: "Fayl tanlanmagan",
-                add_btn: "Qo'shish",
-                user_profile_title: "👤 Foydalanuvchi Profili",
-                welcome_system: "⚡ Tizimga xush kelibsiz",
-                login_tab_btn: "🔑 Kirish",
-                register_tab_btn: "📝 Ro'yxatdan o'tish",
-                email_placeholder: "Elektron pochta (Email)",
-                username_placeholder: "Email yoki Username kiriting",
-                password_placeholder: "Parol",
-                confirm_password_placeholder: "Parolni takrorlang",
-                login_btn: "Kirish",
-                register_btn: "Ro'yxatdan o'tish",
-                welcome_back: "Xush kelibsiz:",
-                logout_btn: "Chiqish",
-                admin_reports_title: "🛡️ Shikoyat qilingan mahsulotlar",
-                admin_reports_desc: "Bu yerda foydalanuvchilar shikoyat qilgan mahsulotlar ro'yxati ko'rinadi.",
-                loading: "Yuklanmoqda...",
-                toast_img_format: "Faqat JPG, PNG yoki WEBP formatidagi rasmlarni yuklashingiz mumkin!",
-                toast_img_size: "Rasm hajmi 5MB dan oshmasligi kerak!",
-                toast_code_success: "Litsenziya kodi tasdiqlandi!",
-                toast_code_error: "Xato kod!",
-                toast_fill_login: "Email/Username va parolni kiriting!",
-                toast_login_error: "Email/Username yoki parol noto'g'ri!",
-                toast_login_success: "Muvaffaqiyatli kirdingiz!",
-                toast_unexpected: "Kutilmagan xatolik yuz berdi!",
-                toast_fill_all: "Barcha maydonlarni to'ldiring!",
-                toast_pass_mismatch: "Kiritilgan parollar bir-biriga mos kelmadi!",
-                toast_pass_length: "Parol kamida 7 ta raqamdan iborat bo'lishi shart!",
-                toast_register_error: "Bu email yoki nom band / xato.",
-                toast_register_success: "Muvaffaqiyatli ro'yxatdan o'tdingiz!",
-                toast_logged_out: "Tizimdan chiqdingiz.",
-                toast_copied: "Ma'lumot nusxalandi!",
-                toast_fill_comment: "Iltimos, izoh yozing!",
-                toast_review_success: "Baho va izohingiz saqlandi!",
-                toast_wrong_license: "Xato litsenziya kodi!",
-                toast_fill_required: "Majburiy maydonlarni to'ldiring!",
-                toast_upload_error: "Rasmni yuklashda xatolik!",
-                toast_edit_success: "Muvaffaqiyatli tahrirlandi!",
-                toast_save_error: "Saqlashda xatolik yuz berdi!",
-                toast_fill_reason: "Sababini yozing!",
-                toast_report_success: "Shikoyatingiz adminga yuborildi!",
-                toast_error: "Xatolik yuz berdi!",
-                toast_delete_success: "Mahsulot o'chirildi!",
-                toast_delete_error: "O'chirishda xatolik ro'y berdi!",
-                toast_add_success: "Mahsulot muvaffaqiyatli qo'shildi!",
-                cheapest_badge: "🔥 Eng arzon",
-                quality_badge: "⭐ Eng sifatli",
-                stock_label: "Qoldiq:",
-                orientir_label: "📍 Mo'ljal:",
-                uploader_label: "Kiritdi:",
-                unknown_uploader: "Noma'lum",
-                rate_btn_text: "⭐ Baholash",
-                edit_btn_text: "✏️ Tahrirlash",
-                report_btn_text: "⚠️ Shikoyat",
-                share_title: "Mahsulot:",
-                share_prices: "Shahrixon narxlari:",
-                share_footer: "\"Bozor\" ilovasi orqali topildi!",
-                prompt_email_ask: "hisobiga tegishli Emailingizni kiriting:",
-                confirm_delete_report: "Haqiqatan ham bu shikoyatni hal qilib, mahsulotni o'chirib tashlamoqchimisiz?",
-                rate_modal_title: "⭐ Mahsulotni baholash",
-                rate_modal_desc: "Xaridingiz haqida fikr va bahoingizni qoldiring:",
-                rate_5: "⭐⭐⭐⭐⭐ (A'lo sifat)",
-                rate_4: "⭐⭐⭐⭐ (Yaxshi)",
-                rate_3: "⭐⭐⭐ (O'rtacha)",
-                rate_2: "⭐⭐ (Yomon)",
-                rate_1: "⭐ (Juda yomon)",
-                review_textarea_placeholder: "Izohingizni yozing...",
-                send_btn: "Yuborish",
-                cancel_btn: "Bekor qilish",
-                edit_auth_title: "🔒 Litsenziya kodi kerak",
-                edit_auth_desc: "Mahsulotni tahrirlash uchun maxsus litsenziya kodini kiriting:",
-                edit_product_title: "✏️ Mahsulotni tahrirlash",
-                product_name_label: "Mahsulot nomi:",
-                store_name_label: "Do'kon nomi:",
-                orientir_label_input: "Mo'ljal / Orientir:",
-                price_label_input: "Narxi (so'm):",
-                stock_label_input: "Qolgan soni (dona):",
-                image_label_input: "Rasm (Yangi rasm tanlash ixtiyoriy):",
-                change_image_btn: "📁 Rasmni o'zgartirish (Maks: 5MB)",
-                new_image_not_chosen: "Yangi rasm tanlanmagan",
-                save_btn: "Saqlash",
-                report_modal_title: "⚠️ Mahsulotdan shikoyat qilish",
-                report_modal_desc: "Nima uchun bu ma'lumot noto'g'ri deb o'ylaysiz?",
-                report_reason_placeholder: "Sababini yozing...",
-                admin_product_id: "Mahsulot ID:",
-                admin_from: "Kimdan:",
-                admin_reason: "Sabab:",
-                admin_delete_btn: "O'chirish / Tasdiqlash",
-                no_reports: "Hozircha shikoyatlar yo'q.",
-                no_products_found: "Hech qanday mahsulot topilmadi.",
-                no_saved_or_matched: "Hozircha saqlangan mahsulotlar yo'q yoki mos keladigani topilmadi.",
-                file_chosen_prefix: "Tanlandi: "
-            },
-            en: {
-                page_title: "Bozor - Shahrixon",
-                main_title: "Bozor",
-                nav_products: "Products",
-                nav_favorites: "💾 Saved",
-                nav_add: "➕ Add",
-                nav_profile: "👤 Profile",
-                nav_admin: "🛡️ Admin",
-                search_placeholder: "Search (e.g., Winter Jacket)...",
-                loading_data: "Loading data...",
-                saved_products_title: "💾 Saved Products",
-                search_saved_placeholder: "Search in saved...",
-                no_saved_products: "No saved products yet.",
-                license_required_title: "🔒 Special License Code Required",
-                license_required_desc: "Enter the special activation code provided by the seller to add store info:",
-                enter_special_code: "Enter special code...",
-                verify_code_btn: "Verify Code",
-                license_active: "✅ License Active",
-                lock_btn: "Lock",
-                product_name_placeholder: "Product Name (Required) *",
-                store_name_placeholder: "Store Name (Required) *",
-                orientir_placeholder: "Landmark / Orientir (Required) *",
-                price_placeholder: "Price in UZS (Required) *",
-                stock_placeholder: "Remaining quantity / pcs (Optional)",
-                select_image_btn: "📁 Select Image (Max: 5MB)",
-                file_not_chosen: "No file chosen",
-                add_btn: "Add",
-                user_profile_title: "👤 User Profile",
-                welcome_system: "⚡ Welcome to the System",
-                login_tab_btn: "🔑 Login",
-                register_tab_btn: "📝 Register",
-                email_placeholder: "Email",
-                username_placeholder: "Enter Email or Username",
-                password_placeholder: "Password",
-                confirm_password_placeholder: "Confirm Password",
-                login_btn: "Login",
-                register_btn: "Register",
-                welcome_back: "Welcome back:",
-                logout_btn: "Logout",
-                admin_reports_title: "🛡️ Reported Products",
-                admin_reports_desc: "List of products reported by users.",
-                loading: "Loading...",
-                toast_img_format: "You can only upload JPG, PNG or WEBP images!",
-                toast_img_size: "Image size must not exceed 5MB!",
-                toast_code_success: "License code verified!",
-                toast_code_error: "Wrong code!",
-                toast_fill_login: "Enter Email/Username and password!",
-                toast_login_error: "Incorrect Email/Username or password!",
-                toast_login_success: "Successfully logged in!",
-                toast_unexpected: "An unexpected error occurred!",
-                toast_fill_all: "Fill in all fields!",
-                toast_pass_mismatch: "Passwords do not match!",
-                toast_pass_length: "Password must be at least 7 digits long!",
-                toast_register_error: "This email or username is taken / invalid.",
-                toast_register_success: "Successfully registered!",
-                toast_logged_out: "Logged out.",
-                toast_copied: "Info copied!",
-                toast_fill_comment: "Please write a comment!",
-                toast_review_success: "Review and rating saved!",
-                toast_wrong_license: "Wrong license code!",
-                toast_fill_required: "Fill in required fields!",
-                toast_upload_error: "Error uploading image!",
-                toast_edit_success: "Successfully edited!",
-                toast_save_error: "Error saving!",
-                toast_fill_reason: "Write the reason!",
-                toast_report_success: "Report sent to admin!",
-                toast_error: "An error occurred!",
-                toast_delete_success: "Product deleted!",
-                toast_delete_error: "Error deleting!",
-                toast_add_success: "Product successfully added!",
-                cheapest_badge: "🔥 Cheapest",
-                quality_badge: "⭐ Best Quality",
-                stock_label: "Stock:",
-                orientir_label: "📍 Landmark:",
-                uploader_label: "Added by:",
-                unknown_uploader: "Unknown",
-                rate_btn_text: "⭐ Rate",
-                edit_btn_text: "✏️ Edit",
-                report_btn_text: "⚠️ Report",
-                share_title: "Product:",
-                share_prices: "Shahrixon prices:",
-                share_footer: "Found via \"Bozor\" app!",
-                prompt_email_ask: "Enter the Email belonging to account @",
-                confirm_delete_report: "Are you sure you want to resolve this report and delete the product?",
-                rate_modal_title: "⭐ Rate Product",
-                rate_modal_desc: "Leave your feedback and rating about your purchase:",
-                rate_5: "⭐⭐⭐⭐⭐ (Excellent)",
-                rate_4: "⭐⭐⭐⭐ (Good)",
-                rate_3: "⭐⭐⭐ (Average)",
-                rate_2: "⭐⭐ (Bad)",
-                rate_1: "⭐ (Very bad)",
-                review_textarea_placeholder: "Write your comment...",
-                send_btn: "Send",
-                cancel_btn: "Cancel",
-                edit_auth_title: "🔒 License Code Required",
-                edit_auth_desc: "Enter the special license code to edit the product:",
-                edit_product_title: "✏️ Edit Product",
-                product_name_label: "Product Name:",
-                store_name_label: "Store Name:",
-                orientir_label_input: "Landmark / Orientir:",
-                price_label_input: "Price (UZS):",
-                stock_label_input: "Remaining qty (pcs):",
-                image_label_input: "Image (Optional new image):",
-                change_image_btn: "📁 Change Image (Max: 5MB)",
-                new_image_not_chosen: "New file not chosen",
-                save_btn: "Save",
-                report_modal_title: "⚠️ Report Product",
-                report_modal_desc: "Why do you think this info is incorrect?",
-                report_reason_placeholder: "Write the reason...",
-                admin_product_id: "Product ID:",
-                admin_from: "From:",
-                admin_reason: "Reason:",
-                admin_delete_btn: "Delete / Approve",
-                no_reports: "No reports yet.",
-                no_products_found: "No products found.",
-                no_saved_or_matched: "No saved products or no match found.",
-                file_chosen_prefix: "Chosen: "
+                appName: "Bozor",
+                navProducts: "Mahsulotlar",
+                navFavorites: "💾 Saqlanganlar",
+                navAdd: "➕ Qo'shish",
+                navProfile: "👤 Profil",
+                navAdmin: "🛡️ Admin",
+                searchPlaceholder: "Qidirish (masalan: Qishki Kurtka)...",
+                loading: "Ma'lumotlar yuklanmoqda...",
+                favTitle: "💾 Saqlangan mahsulotlar",
+                favSearchPlaceholder: "Saqlanganlardan qidirish...",
+                noFavorites: "Hozircha saqlangan mahsulotlar yo'q.",
+                lockTitle: "🔒 Maxsus litsenziya kodi talab etiladi",
+                lockDesc: "Do'kondan ma'lumot kiritish uchun sotuvchi tomonidan berilgan maxsus aktivatsiya kodini kiriting:",
+                lockInputPlaceholder: "Maxsus kodni kiriting...",
+                lockVerifyBtn: "Kodni tasdiqlash",
+                activeLicense: "✅ Litsenziya faol",
+                lockBtn: "Qulflash",
+                newNamePlaceholder: "Mahsulot nomi (Majburiy) *",
+                newStorePlaceholder: "Do'kon nomi (Majburiy) *",
+                newOrientirPlaceholder: "Mo'ljal / Orientir (Majburiy) *",
+                newPricePlaceholder: "Narxi so'mda (Majburiy) *",
+                newStockPlaceholder: "Qolgan soni / dona (Ixtiyoriy)",
+                fileMainText: "📁 Rasm tanlash (Maks: 5MB)",
+                fileNotChosen: "Fayl tanlanmagan",
+                addProductBtn: "Qo'shish",
+                profileHeader: "👤 Foydalanuvchi Profili",
+                authLoginTitle: "⚡ Tizimga xush kelibsiz",
+                authRegisterTitle: "✨ Yangi hisob yaratish",
+                loginTabBtn: "🔑 Kirish",
+                registerTabBtn: "📝 Ro'yxatdan o'tish",
+                authEmailPlaceholder: "Elektron pochta (Email)",
+                authUsernamePlaceholderLogin: "Email yoki Username kiriting",
+                authUsernamePlaceholderReg: "Foydalanuvchi nomi (Username)",
+                authPasswordPlaceholder: "Parol",
+                authConfirmPasswordPlaceholder: "Parolni takrorlang",
+                loginActionBtn: "Kirish",
+                registerActionBtn: "Ro'yxatdan o'tish",
+                forgotPasswordLink: "Parolingiz esdan chiqdimimi?",
+                welcomeText: "Xush kelibsiz:",
+                logoutBtn: "Chiqish",
+                adminTitleText: "🛡️ Shikoyat qilingan mahsulotlar",
+                adminDescText: "Bu yerda foydalanuvchilar shikoyat qilgan mahsulotlar ro'yxati ko'rinadi.",
+                adminLoading: "Yuklanmoqda...",
+                shareTooltip: "Ulashish",
+                saveTooltip: "Saqlash",
+                cheapestBadge: "🔥 Eng arzon",
+                bestQualityBadge: "⭐ Eng sifatli",
+                stockLabel: "Qoldiq:",
+                orientirLabel: "📍 Mo'ljal:",
+                uploaderLabel: "Kiritdi:",
+                rateBtn: "⭐ Baholash",
+                editBtn: "✏️ Tahrirlash",
+                reportBtn: "⚠️ Shikoyat",
+                warningBannerText: "⚠️ Diqqat: Bu do'kondagi narx yoki ma'lumot bo'yicha foydalanuvchilar shikoyat qilishgan! Ehtiyot bo'ling.",
+                rateModalTitle: "⭐ Mahsulotni baholash",
+                rateModalDesc: "Xaridingiz haqida fikr va bahoingizni qoldiring:",
+                rateSubmitBtn: "Yuborish",
+                rateCancelBtn: "Bekor qilish",
+                editModalTitle: "✏️ Mahsulotni tahrirlash",
+                editSaveBtn: "Saqlash",
+                editCancelBtn: "Bekor qilish",
+                reportModalTitle: "⚠️ Mahsulotdan shikoyat qilish",
+                reportModalDesc: "Nima uchun bu ma'lumot noto'g'ri deb o'ylaysiz?",
+                reportSubmitBtn: "Yuborish",
+                reportCancelBtn: "Bekor qilish",
+                systemMessageTitle: "Xabarnoma"
             },
             ru: {
-                page_title: "Bozor - Шахрихан",
-                main_title: "Bozor",
-                nav_products: "Продукты",
-                nav_favorites: "💾 Избранное",
-                nav_add: "➕ Добавить",
-                nav_profile: "👤 Профиль",
-                nav_admin: "🛡️ Админ",
-                search_placeholder: "Поиск (например: Зимняя куртка)...",
-                loading_data: "Загрузка данных...",
-                saved_products_title: "💾 Сохраненные продукты",
-                search_saved_placeholder: "Поиск в сохраненных...",
-                no_saved_products: "Пока нет сохраненных продуктов.",
-                license_required_title: "🔒 Требуется специальный лицензионный код",
-                license_required_desc: "Введите специальный код активации, предоставленный продавцом, чтобы добавлять информацию:",
-                enter_special_code: "Введите спец. код...",
-                verify_code_btn: "Подтвердить код",
-                license_active: "✅ Лицензия активна",
-                lock_btn: "Заблокировать",
-                product_name_placeholder: "Название продукта (Обязательно) *",
-                store_name_placeholder: "Название магазина (Обязательно) *",
-                orientir_placeholder: "Ориентир (Обязательно) *",
-                price_placeholder: "Цена в сумах (Обязательно) *",
-                stock_placeholder: "Остаток / шт. (Необязательно)",
-                select_image_btn: "📁 Выбрать фото (Макс: 5MB)",
-                file_not_chosen: "Файл не выбран",
-                add_btn: "Добавить",
-                user_profile_title: "👤 Профиль пользователя",
-                welcome_system: "⚡ Добро пожаловать в систему",
-                login_tab_btn: "🔑 Вход",
-                register_tab_btn: "📝 Регистрация",
-                email_placeholder: "Электронная почта (Email)",
-                username_placeholder: "Введите Email или Username",
-                password_placeholder: "Пароль",
-                confirm_password_placeholder: "Повторите пароль",
-                login_btn: "Войти",
-                register_btn: "Зарегистрироваться",
-                welcome_back: "Добро пожаловать:",
-                logout_btn: "Выйти",
-                admin_reports_title: "🛡️ Жалобы на продукты",
-                admin_reports_desc: "Здесь отображается список продуктов, на которые пожаловались пользователи.",
-                loading: "Загрузка...",
-                toast_img_format: "Можно загружать только изображения JPG, PNG или WEBP!",
-                toast_img_size: "Размер изображения не должен превышать 5MB!",
-                toast_code_success: "Лицензионный код подтвержден!",
-                toast_code_error: "Неверный код!",
-                toast_fill_login: "Введите Email/Username и пароль!",
-                toast_login_error: "Неверный Email/Username или пароль!",
-                toast_login_success: "Вы успешно вошли!",
-                toast_unexpected: "Произошла непредвиденная ошибка!",
-                toast_fill_all: "Заполните все поля!",
-                toast_pass_mismatch: "Пароли не совпадают!",
-                toast_pass_length: "Пароль должен содержать не менее 7 цифр!",
-                toast_register_error: "Этот email или имя занято / неверно.",
-                toast_register_success: "Вы успешно зарегистрировались!",
-                toast_logged_out: "Вы вышли из системы.",
-                toast_copied: "Информация скопирована!",
-                toast_fill_comment: "Пожалуйста, напишите отзыв!",
-                toast_review_success: "Оценка и отзыв сохранены!",
-                toast_wrong_license: "Неверный лицензионный код!",
-                toast_fill_required: "Заполните обязательные поля!",
-                toast_upload_error: "Ошибка загрузки изображения!",
-                toast_edit_success: "Успешно отредактировано!",
-                toast_save_error: "Ошибка при сохранении!",
-                toast_fill_reason: "Напишите причину!",
-                toast_report_success: "Жалоба отправлена админу!",
-                toast_error: "Произошла ошибка!",
-                toast_delete_success: "Продукт удален!",
-                toast_delete_error: "Ошибка при удалении!",
-                toast_add_success: "Продукт успешно добавлен!",
-                cheapest_badge: "🔥 Самый дешевый",
-                quality_badge: "⭐ Самое качественное",
-                stock_label: "Остаток:",
-                orientir_label: "📍 Ориентир:",
-                uploader_label: "Добавил:",
-                unknown_uploader: "Неизвестно",
-                rate_btn_text: "⭐ Оценить",
-                edit_btn_text: "✏️ Редактировать",
-                report_btn_text: "⚠️ Жалоба",
-                share_title: "Продукт:",
-                share_prices: "Цены в Шахрихане:",
-                share_footer: "Найдено через приложение \"Bozor\"!",
-                prompt_email_ask: "Введите Email, принадлежащий аккаунту @",
-                confirm_delete_report: "Вы действительно хотите разрешить эту жалобу и удалить продукт?",
-                rate_modal_title: "⭐ Оценить продукт",
-                rate_modal_desc: "Оставьте свое мнение и оценку о покупке:",
-                rate_5: "⭐⭐⭐⭐⭐ (Отлично)",
-                rate_4: "⭐⭐⭐⭐ (Хорошо)",
-                rate_3: "⭐⭐⭐ (Средне)",
-                rate_2: "⭐⭐ (Плохо)",
-                rate_1: "⭐ (Очень плохо)",
-                review_textarea_placeholder: "Напишите ваш отзыв...",
-                send_btn: "Отправить",
-                cancel_btn: "Отмена",
-                edit_auth_title: "🔒 Требуется код лицензии",
-                edit_auth_desc: "Введите специальный лицензионный код для редактирования продукта:",
-                edit_product_title: "✏️ Редактировать продукт",
-                product_name_label: "Название продукта:",
-                store_name_label: "Название магазина:",
-                orientir_label_input: "Ориентир:",
-                price_label_input: "Цена (сум):",
-                stock_label_input: "Остаток (шт):",
-                image_label_input: "Фото (Необязательно новое фото):",
-                change_image_btn: "📁 Изменить фото (Макс: 5MB)",
-                new_image_not_chosen: "Новый файл не выбран",
-                save_btn: "Сохранить",
-                report_modal_title: "⚠️ Пожаловаться на продукт",
-                report_modal_desc: "Почему вы считаете эту информацию неверной?",
-                report_reason_placeholder: "Напишите причину...",
-                admin_product_id: "ID продукта:",
-                admin_from: "От кого:",
-                admin_reason: "Причина:",
-                admin_delete_btn: "Удалить / Подтвердить",
-                no_reports: "Пока нет жалоб.",
-                no_products_found: "Продукты не найдены.",
-                no_saved_or_matched: "Нет сохраненных продуктов или нет совпадений.",
-                file_chosen_prefix: "Выбрано: "
+                appName: "Рынок",
+                navProducts: "Товары",
+                navFavorites: "💾 Избранное",
+                navAdd: "➕ Добавить",
+                navProfile: "👤 Профиль",
+                navAdmin: "🛡️ Админ",
+                searchPlaceholder: "Поиск (например: Зимняя Куртка)...",
+                loading: "Загрузка данных...",
+                favTitle: "💾 Сохраненные товары",
+                favSearchPlaceholder: "Поиск в избранном...",
+                noFavorites: "В избранном пока ничего нет.",
+                lockTitle: "🔒 Требуется специальный код лицензии",
+                lockDesc: "Введите специальный код активации, предоставленный продавцом для ввода данных:",
+                lockInputPlaceholder: "Введите специальный код...",
+                lockVerifyBtn: "Подтвердить код",
+                activeLicense: "✅ Лицензия активна",
+                lockBtn: "Заблокировать",
+                newNamePlaceholder: "Название товара (Обязательно) *",
+                newStorePlaceholder: "Название магазина (Обязательно) *",
+                newOrientirPlaceholder: "Ориентир (Обязательно) *",
+                newPricePlaceholder: "Цена в сумах (Обязательно) *",
+                newStockPlaceholder: "Остаток / шт (Необязательно)",
+                fileMainText: "📁 Выбрать фото (Макс: 5MB)",
+                fileNotChosen: "Файл не выбран",
+                addProductBtn: "Добавить",
+                profileHeader: "👤 Профиль пользователя",
+                authLoginTitle: "⚡ Добро пожаловать",
+                authRegisterTitle: "✨ Создать аккаунт",
+                loginTabBtn: "🔑 Войти",
+                registerTabBtn: "📝 Регистрация",
+                authEmailPlaceholder: "Электронная почта (Email)",
+                authUsernamePlaceholderLogin: "Введите Email или Username",
+                authUsernamePlaceholderReg: "Имя пользователя (Username)",
+                authPasswordPlaceholder: "Пароль",
+                authConfirmPasswordPlaceholder: "Повторите пароль",
+                loginActionBtn: "Войти",
+                registerActionBtn: "Зарегистрироваться",
+                forgotPasswordLink: "Забыли пароль?",
+                welcomeText: "Добро пожаловать:",
+                logoutBtn: "Выйти",
+                adminTitleText: "🛡️ Жалобы на товары",
+                adminDescText: "Здесь отображается список товаров, на которые пожаловались пользователи.",
+                adminLoading: "Загрузка...",
+                shareTooltip: "Поделиться",
+                saveTooltip: "Сохранить",
+                cheapestBadge: "🔥 Самый дешевый",
+                bestQualityBadge: "⭐ Лучшее качество",
+                stockLabel: "Остаток:",
+                orientirLabel: "📍 Ориентир:",
+                uploaderLabel: "Добавил:",
+                rateBtn: "⭐ Оценить",
+                editBtn: "✏️ Редактировать",
+                reportBtn: "⚠️ Жалоба",
+                warningBannerText: "⚠️ Внимание: Пользователи пожаловались на цену или информацию в этом магазине! Будьте осторожны.",
+                rateModalTitle: "⭐ Оценить товар",
+                rateModalDesc: "Оставьте свое мнение и оценку о покупке:",
+                rateSubmitBtn: "Отправить",
+                rateCancelBtn: "Отмена",
+                editModalTitle: "✏️ Редактировать товар",
+                editSaveBtn: "Сохранить",
+                editCancelBtn: "Отмена",
+                reportModalTitle: "⚠️ Пожаловаться на товар",
+                reportModalDesc: "Почему вы считаете эту информацию неверной?",
+                reportSubmitBtn: "Отправить",
+                reportCancelBtn: "Отмена",
+                systemMessageTitle: "Уведомление"
+            },
+            en: {
+                appName: "Market",
+                navProducts: "Products",
+                navFavorites: "💾 Saved",
+                navAdd: "➕ Add",
+                navProfile: "👤 Profile",
+                navAdmin: "🛡️ Admin",
+                searchPlaceholder: "Search (e.g., Winter Jacket)...",
+                loading: "Loading data...",
+                favTitle: "💾 Saved Products",
+                favSearchPlaceholder: "Search in saved...",
+                noFavorites: "No saved products yet.",
+                lockTitle: "🔒 Special License Code Required",
+                lockDesc: "Enter the special activation code provided by the seller to input data:",
+                lockInputPlaceholder: "Enter special code...",
+                lockVerifyBtn: "Verify Code",
+                activeLicense: "✅ License Active",
+                lockBtn: "Lock",
+                newNamePlaceholder: "Product Name (Required) *",
+                newStorePlaceholder: "Store Name (Required) *",
+                newOrientirPlaceholder: "Landmark (Required) *",
+                newPricePlaceholder: "Price in UZS (Required) *",
+                newStockPlaceholder: "Stock / pcs (Optional)",
+                fileMainText: "📁 Choose Image (Max: 5MB)",
+                fileNotChosen: "No file chosen",
+                addProductBtn: "Add",
+                profileHeader: "👤 User Profile",
+                authLoginTitle: "⚡ Welcome Back",
+                authRegisterTitle: "✨ Create New Account",
+                loginTabBtn: "🔑 Login",
+                registerTabBtn: "📝 Register",
+                authEmailPlaceholder: "Email address",
+                authUsernamePlaceholderLogin: "Enter Email or Username",
+                authUsernamePlaceholderReg: "Username",
+                authPasswordPlaceholder: "Password",
+                authConfirmPasswordPlaceholder: "Confirm Password",
+                loginActionBtn: "Login",
+                registerActionBtn: "Register",
+                forgotPasswordLink: "Forgot password?",
+                welcomeText: "Welcome:",
+                logoutBtn: "Logout",
+                adminTitleText: "🛡️ Reported Products",
+                adminDescText: "Here is the list of products reported by users.",
+                adminLoading: "Loading...",
+                shareTooltip: "Share",
+                saveTooltip: "Save",
+                cheapestBadge: "🔥 Cheapest",
+                bestQualityBadge: "⭐ Best Quality",
+                stockLabel: "Stock:",
+                orientirLabel: "📍 Landmark:",
+                uploaderLabel: "Added by:",
+                rateBtn: "⭐ Rate",
+                editBtn: "✏️ Edit",
+                reportBtn: "⚠️ Report",
+                warningBannerText: "⚠️ Warning: Users have reported issues with the price or info at this store! Be careful.",
+                rateModalTitle: "⭐ Rate Product",
+                rateModalDesc: "Leave your feedback and rating about your purchase:",
+                rateSubmitBtn: "Submit",
+                rateCancelBtn: "Cancel",
+                editModalTitle: "✏️ Edit Product",
+                editSaveBtn: "Save",
+                editCancelBtn: "Cancel",
+                reportModalTitle: "⚠️ Report Product",
+                reportModalDesc: "Why do you think this info is incorrect?",
+                reportSubmitBtn: "Submit",
+                reportCancelBtn: "Cancel",
+                systemMessageTitle: "Notification"
             }
         };
-
-        let currentLang = 'uz';
 
         function t(key) {
             return translations[currentLang][key] || translations['uz'][key] || key;
@@ -975,8 +865,9 @@
 
         function changeLanguage(lang) {
             currentLang = lang;
-            localStorage.setItem('narx_app_lang', lang);
-            updateUITexts();
+            localStorage.setItem('narx_lang', lang);
+            document.getElementById('langSelector').value = lang;
+            updateTexts();
             displayProducts(products);
             if (document.getElementById('favoritesTab').classList.contains('active')) {
                 displayFavorites();
@@ -986,89 +877,139 @@
             }
         }
 
-        function updateUITexts() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                el.textContent = t(key);
-            });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                el.placeholder = t(key);
-            });
+        function updateTexts() {
+            document.getElementById('appTitle').textContent = t('appName');
+            document.getElementById('navProducts').textContent = t('navProducts');
+            document.getElementById('navFavorites').textContent = t('navFavorites');
+            document.getElementById('navAdd').textContent = t('navAdd');
+            document.getElementById('navProfile').textContent = t('navProfile');
+            document.getElementById('adminNavBtn').textContent = t('navAdmin');
+            
+            document.getElementById('searchInput').placeholder = t('searchPlaceholder');
+            const loadingText = document.getElementById('loadingText');
+            if (loadingText) loadingText.textContent = t('loading');
 
-            // Update auth title dynamically based on mode
-            const authContainer = document.getElementById("authBoxContainer");
-            const authTitle = document.getElementById("authBoxTitle");
-            if (authContainer && authTitle) {
-                if (currentAuthMode === 'login') {
-                    authTitle.textContent = currentLang === 'uz' ? "⚡ Tizimga xush kelibsiz (Kirish)" : currentLang === 'en' ? "⚡ Welcome to System (Login)" : "⚡ Добро пожаловать (Вход)";
-                } else {
-                    authTitle.textContent = currentLang === 'uz' ? "✨ Yangi hisob yaratish (Ro'yxatdan o'tish)" : currentLang === 'en' ? "✨ Create New Account (Register)" : "✨ Создать аккаунт (Регистрация)";
-                }
+            document.getElementById('favTitle').textContent = t('favTitle');
+            document.getElementById('favoritesSearchInput').placeholder = t('favSearchPlaceholder');
+            const noFavText = document.getElementById('noFavText');
+            if (noFavText) noFavText.textContent = t('noFavorites');
+
+            document.getElementById('lockTitle').textContent = t('lockTitle');
+            document.getElementById('lockDesc').textContent = t('lockDesc');
+            document.getElementById('activationCodeInput').placeholder = t('lockInputPlaceholder');
+            document.getElementById('lockVerifyBtn').textContent = t('lockVerifyBtn');
+            document.getElementById('activeLicenseTitle').textContent = t('activeLicense');
+            document.getElementById('lockBtnText').textContent = t('lockBtn');
+
+            document.getElementById('newName').placeholder = t('newNamePlaceholder');
+            document.getElementById('newStore').placeholder = t('newStorePlaceholder');
+            document.getElementById('newOrientir').placeholder = t('newOrientirPlaceholder');
+            document.getElementById('newPrice').placeholder = t('newPricePlaceholder');
+            document.getElementById('newStock').placeholder = t('newStockPlaceholder');
+            document.getElementById('fileMainText').textContent = t('fileMainText');
+            document.getElementById('addProductBtn').textContent = t('addProductBtn');
+
+            document.getElementById('profileHeaderTitle').textContent = t('profileHeader');
+            document.getElementById('modeLoginBtn').textContent = t('loginTabBtn');
+            document.getElementById('modeRegisterBtn').textContent = t('registerTabBtn');
+            
+            document.getElementById('authBoxTitle').textContent = (currentAuthMode === 'login') ? t('authLoginTitle') : t('authRegisterTitle');
+
+            document.getElementById('authEmail').placeholder = t('authEmailPlaceholder');
+            
+            const usernameInput = document.getElementById('authUsername');
+            if (currentAuthMode === 'login') {
+                usernameInput.placeholder = t('authUsernamePlaceholderLogin');
+            } else {
+                usernameInput.placeholder = t('authUsernamePlaceholderReg');
             }
 
-            // Update file text if not chosen
-            const fileText = document.getElementById('fileChosenText');
-            if (fileText && fileText.textContent.includes("Fayl tanlanmagan") || fileText.textContent.includes("No file chosen") || fileText.textContent.includes("Файл не выбран")) {
-                fileText.textContent = t('file_not_chosen');
+            document.getElementById('authPassword').placeholder = t('authPasswordPlaceholder');
+            document.getElementById('authConfirmPassword').placeholder = t('authConfirmPasswordPlaceholder');
+            document.getElementById('authActionBtn').textContent = (currentAuthMode === 'login') ? t('loginActionBtn') : t('registerActionBtn');
+            document.getElementById('forgotPasswordBtn').textContent = t('forgotPasswordLink');
+
+            document.getElementById('welcomeUserText').textContent = t('welcomeText');
+            document.getElementById('logoutBtnText').textContent = t('logoutBtn');
+
+            document.getElementById('adminTitle').textContent = t('adminTitleText');
+            document.getElementById('adminDesc').textContent = t('adminDescText');
+            const adminLoadingText = document.getElementById('adminLoadingText');
+            if (adminLoadingText) adminLoadingText.textContent = t('adminLoading');
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('authPassword');
+            const toggleBtn = document.getElementById('toggleBtn');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '👁️';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️‍🗨️';
             }
         }
-        
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let products = [];
-        let productReviews = {};
-        let reportedProductIds = new Set();
-        let currentUser = null;
-        let favorites = JSON.parse(localStorage.getItem('narx_favorites')) || [];
-        let currentAuthMode = 'login';
+
+        function showComplaintUI(message, type = 'error') {
+            const oldAlert = document.getElementById('creative-complaint-box');
+            if (oldAlert) oldAlert.remove();
+
+            const complaintBox = document.createElement('div');
+            complaintBox.id = 'creative-complaint-box';
+            
+            const borderColor = type === 'warning' ? '#f59e0b' : (type === 'success' ? '#10b981' : '#ef4444');
+
+            // Xabar konteynerning eng pastki qismida chiqadi
+            complaintBox.style.cssText = `
+                position: absolute;
+                bottom: 12px;
+                left: 12px;
+                right: 12px;
+                background-color: #0f172a;
+                border-left: 4px solid ${borderColor};
+                border-top: 1px solid rgba(255,255,255,0.08);
+                border-right: 1px solid rgba(255,255,255,0.08);
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+                color: #f8fafc;
+                padding: 10px 14px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                z-index: 9999;
+                font-family: sans-serif;
+                box-sizing: border-box;
+            `;
+
+            complaintBox.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                    <div>
+                        <div style="font-size: 11px; font-weight: bold; color: ${borderColor}; text-transform: uppercase; margin-bottom: 2px;">${t('systemMessageTitle')}</div>
+                        <div style="font-size: 13px; color: #cbd5e1; line-height: 1.3;">${message}</div>
+                    </div>
+                    <button id="close-complaint" style="background: transparent; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; padding: 0; line-height: 1;">✕</button>
+                </div>
+            `;
+
+            document.getElementById('mainContainer').appendChild(complaintBox);
+            document.getElementById('close-complaint').onclick = () => complaintBox.remove();
+            
+            setTimeout(() => { 
+                if (document.body.contains(complaintBox)) {
+                    complaintBox.remove(); 
+                }
+            }, 5000);
+        }
 
         function showToast(message, type = 'success') {
-            const existing = document.getElementById('toastNotification');
-            if (existing) existing.remove();
-            
-            const toast = document.createElement('div');
-            toast.id = 'toastNotification';
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: ${type === 'error' ? '#ef4444' : '#10b981'};
-                color: white;
-                padding: 10px 20px;
-                border-radius: 8px;
-                font-size: 13px;
-                font-weight: 600;
-                z-index: 9999;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                transition: opacity 0.3s ease;
-            `;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            showComplaintUI(message, type);
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
-            const savedLang = localStorage.getItem('narx_app_lang');
-            if (savedLang && translations[savedLang]) {
-                currentLang = savedLang;
-                document.getElementById('languageSelect').value = savedLang;
-            }
-            updateUITexts();
-
-            document.getElementById("authPassword").value = "";
-            document.getElementById("authConfirmPassword").value = "";
-            document.getElementById("authUsername").value = "";
-            document.getElementById("authEmail").value = "";
-            document.getElementById("searchInput").value = "";
-            document.getElementById("favoritesSearchInput").value = "";
-
+            document.getElementById('langSelector').value = currentLang;
+            updateTexts();
             checkActivationStatus();
-            await checkUser();
+            
+            await checkUserSessionAndRestore();
             await fetchReportsList();
             fetchProducts();
         });
@@ -1102,27 +1043,28 @@
             const confirmPasswordInput = document.getElementById("authConfirmPassword");
             const authContainer = document.getElementById("authBoxContainer");
             const authTitle = document.getElementById("authBoxTitle");
+            const forgotBtn = document.getElementById("forgotPasswordBtn");
 
             if (mode === 'login') {
                 authContainer.className = "auth-container mode-login";
-                authTitle.textContent = currentLang === 'uz' ? "⚡ Tizimga xush kelibsiz (Kirish)" : currentLang === 'en' ? "⚡ Welcome to System (Login)" : "⚡ Добро пожаловать (Вход)";
+                authTitle.textContent = t('authLoginTitle');
                 modeLoginBtn.className = "auth-toggle-btn login-active-tab";
                 modeRegisterBtn.className = "auth-toggle-btn inactive";
                 emailInput.style.display = "none";
                 confirmPasswordInput.style.display = "none";
-                usernameInput.placeholder = t('username_placeholder');
-                actionBtn.textContent = t('login_btn');
-                actionBtn.style.background = "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)";
+                usernameInput.placeholder = t('authUsernamePlaceholderLogin');
+                actionBtn.textContent = t('loginActionBtn');
+                forgotBtn.style.display = "block";
             } else {
                 authContainer.className = "auth-container mode-register";
-                authTitle.textContent = currentLang === 'uz' ? "✨ Yangi hisob yaratish (Ro'yxatdan o'tish)" : currentLang === 'en' ? "✨ Create New Account (Register)" : "✨ Создать аккаунт (Регистрация)";
+                authTitle.textContent = t('authRegisterTitle');
                 modeRegisterBtn.className = "auth-toggle-btn register-active-tab";
                 modeLoginBtn.className = "auth-toggle-btn inactive";
                 emailInput.style.display = "block";
                 confirmPasswordInput.style.display = "block";
-                usernameInput.placeholder = t('username_placeholder');
-                actionBtn.textContent = t('register_btn');
-                actionBtn.style.background = "linear-gradient(135deg, #059669 0%, #10b981 100%)";
+                usernameInput.placeholder = t('authUsernamePlaceholderReg');
+                actionBtn.textContent = t('registerActionBtn');
+                forgotBtn.style.display = "none";
             }
         }
 
@@ -1136,19 +1078,10 @@
 
         function validateImageFile(file) {
             if (!file) return true;
-            const maxSizeInBytes = 5 * 1024 * 1024;
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-
-            if (!allowedTypes.includes(file.type)) {
-                showToast(t('toast_img_format'), "error");
+            if (file.size > 5 * 1024 * 1024) {
+                showToast("Rasm hajmi 5MB dan oshmasligi kerak!", "error");
                 return false;
             }
-
-            if (file.size > maxSizeInBytes) {
-                showToast(t('toast_img_size'), "error");
-                return false;
-            }
-
             return true;
         }
 
@@ -1156,17 +1089,12 @@
             const isActivated = localStorage.getItem('narx_app_activated');
             const lockSection = document.getElementById('activationLockSection');
             const contentSection = document.getElementById('addSectionContent');
-            const favoritesNavBtn = document.getElementById('favoritesNavBtn');
+            const favoritesNavBtn = document.getElementById('navFavorites');
 
             if (isActivated === 'true') {
                 lockSection.style.display = 'none';
                 contentSection.style.display = 'block';
                 if (favoritesNavBtn) favoritesNavBtn.style.display = 'none';
-
-                const activeTab = document.querySelector('.tab-content.active');
-                if (activeTab && activeTab.id === 'favoritesTab') {
-                    switchTab('productsTab', document.querySelector('.nav-btn'));
-                }
             } else {
                 lockSection.style.display = 'block';
                 contentSection.style.display = 'none';
@@ -1180,9 +1108,9 @@
                 localStorage.setItem('narx_app_activated', 'true');
                 document.getElementById('activationCodeInput').value = '';
                 checkActivationStatus();
-                showToast(t('toast_code_success'));
+                showToast("Litsenziya kodi tasdiqlandi!", "success");
             } else {
-                showToast(t('toast_code_error'), "error");
+                showToast("Xato kod!", "error");
             }
         }
 
@@ -1191,15 +1119,27 @@
             checkActivationStatus();
         }
 
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            currentUser = session?.user || null;
-            updateAuthUI();
-        });
-
-        async function checkUser() {
+        async function checkUserSessionAndRestore() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             currentUser = session?.user || null;
             updateAuthUI();
+
+            const savedTab = localStorage.getItem('narx_active_tab');
+            if (currentUser && savedTab) {
+                const targetBtn = document.querySelector(`[onclick*="${savedTab}"]`);
+                if (targetBtn && (savedTab !== 'adminTab' || isUserAdmin())) {
+                    switchTab(savedTab, targetBtn, false);
+                }
+            }
+        }
+
+        function isUserAdmin() {
+            if (!currentUser) return false;
+            let metaName = currentUser.user_metadata?.username || currentUser.user_metadata?.name || "";
+            if (!metaName && currentUser.email) {
+                metaName = currentUser.email.split('@')[0];
+            }
+            return metaName.toLowerCase() === ADMIN_USERNAME.toLowerCase() || (currentUser.email && currentUser.email.toLowerCase().startsWith(ADMIN_USERNAME.toLowerCase()));
         }
 
         function updateAuthUI() {
@@ -1213,155 +1153,167 @@
                 loggedInView.style.display = "block";
                 navMenu.style.display = "flex";
                 
-                const metaName = currentUser.user_metadata?.username || currentUser.email.split('@')[0];
+                let metaName = currentUser.user_metadata?.username || currentUser.user_metadata?.name || "";
+                if (!metaName && currentUser.email) {
+                    metaName = currentUser.email.split('@')[0];
+                }
+                
                 document.getElementById("userNameDisplay").textContent = metaName;
                 document.getElementById("userHandleDisplay").textContent = "@" + metaName;
 
-                if (metaName.toLowerCase() === ADMIN_USERNAME.toLowerCase()) {
+                if (isUserAdmin()) {
                     adminNavBtn.style.display = "block";
                     fetchReportedProducts();
                 } else {
                     adminNavBtn.style.display = "none";
-                }
-
-                const activeTab = document.querySelector('.tab-content.active');
-                if (!activeTab || activeTab.id === 'profileTab') {
-                    switchTab('productsTab', document.querySelector('.nav-btn'));
                 }
             } else {
                 loggedOutView.style.display = "block";
                 loggedInView.style.display = "none";
                 navMenu.style.display = "none";
                 adminNavBtn.style.display = "none";
-                switchTab('profileTab', null);
+                switchTab('profileTab', null, false);
             }
-        }
-
-        function validatePassword(password) {
-            const isOnlyDigits = /^\d+$/.test(password);
-            const isLongEnough = password.length > 6;
-            return isOnlyDigits && isLongEnough;
         }
 
         async function loginUser() {
-            try {
-                const loginInput = document.getElementById("authUsername").value.trim();
-                const password = document.getElementById("authPassword").value.trim();
+            const loginInput = document.getElementById("authUsername").value.trim();
+            const password = document.getElementById("authPassword").value.trim();
 
-                if (!loginInput || !password) {
-                    showToast(t('toast_fill_login'), "error");
-                    return;
-                }
-
-                let emailToUse = "";
-
-                if (loginInput.includes("@")) {
-                    emailToUse = loginInput.toLowerCase();
-                } else {
-                    const usernameLower = loginInput.toLowerCase();
-                    let savedEmail = localStorage.getItem(`user_email_${usernameLower}`);
-                    
-                    if (savedEmail) {
-                        emailToUse = savedEmail;
-                    } else {
-                        let userEmailInput = prompt(`@${loginInput} ${t('prompt_email_ask')}`);
-                        if (!userEmailInput) return;
-                        
-                        emailToUse = userEmailInput.trim().toLowerCase();
-                        localStorage.setItem(`user_email_${usernameLower}`, emailToUse);
-                    }
-                }
-
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ 
-                    email: emailToUse, 
-                    password: password 
-                });
-
-                if (error) {
-                    showToast(t('toast_login_error'), "error");
-                    return;
-                }
-
-                currentUser = data.user;
-                updateAuthUI();
-                showToast(t('toast_login_success'));
-                switchTab('productsTab', document.querySelector('.nav-btn'));
-
-            } catch (err) {
-                console.error("Login xatosi:", err);
-                showToast(t('toast_unexpected'), "error");
+            if (!loginInput || !password) {
+                showToast("Email/Username va parolni kiriting!", "error");
+                return;
             }
+
+            if (loginInput.toLowerCase() === ADMIN_USERNAME.toLowerCase() && password === "123456789") {
+                currentUser = { email: "abu_bakr@admin.com", user_metadata: { username: "abu_bakr" } };
+                updateAuthUI();
+                showToast("Admin sifatida muvaffaqiyatli kirdingiz!", "success");
+                switchTab('adminTab', document.getElementById('adminNavBtn'));
+                return;
+            }
+
+            let emailToUse = loginInput;
+            if (!loginInput.includes("@")) {
+                let savedEmail = localStorage.getItem(`user_email_${loginInput.toLowerCase()}`);
+                if (savedEmail) {
+                    emailToUse = savedEmail;
+                } else {
+                    let userEmailInput = prompt(`"@${loginInput}" hisobiga tegishli Emailingizni kiriting:`);
+                    if (!userEmailInput) return;
+                    emailToUse = userEmailInput.trim().toLowerCase();
+                    localStorage.setItem(`user_email_${loginInput.toLowerCase()}`, emailToUse);
+                }
+            }
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ 
+                email: emailToUse, 
+                password: password 
+            });
+
+            if (error) {
+                showToast("Email/Username yoki parol noto'g'ri!", "error");
+                return;
+            }
+
+            currentUser = data.user;
+            updateAuthUI();
+            showToast("Muvaffaqiyatli kirdingiz!", "success");
+            switchTab('productsTab', document.querySelector('.nav-btn'));
         }
 
         async function registerUser() {
-            try {
-                const email = document.getElementById("authEmail").value.trim().toLowerCase();
-                const username = document.getElementById("authUsername").value.trim();
-                const password = document.getElementById("authPassword").value.trim();
-                const confirmPassword = document.getElementById("authConfirmPassword").value.trim();
+            const email = document.getElementById("authEmail").value.trim().toLowerCase();
+            const username = document.getElementById("authUsername").value.trim();
+            const password = document.getElementById("authPassword").value.trim();
+            const confirmPassword = document.getElementById("authConfirmPassword").value.trim();
 
-                if (!email || !username || !password || !confirmPassword) {
-                    showToast(t('toast_fill_all'), "error");
-                    return;
-                }
-
-                if (password !== confirmPassword) {
-                    showToast(t('toast_pass_mismatch'), "error");
-                    return;
-                }
-
-                if (!validatePassword(password)) {
-                    showToast(t('toast_pass_length'), "error");
-                    return;
-                }
-
-                const { data, error } = await supabaseClient.auth.signUp({ 
-                    email: email, 
-                    password: password,
-                    options: {
-                        data: { username: username }
-                    }
-                });
-
-                if (error) {
-                    showToast(t('toast_register_error'), "error");
-                    return;
-                }
-
-                localStorage.setItem(`user_email_${username.toLowerCase()}`, email);
-
-                showToast(t('toast_register_success'));
-                setAuthMode('login');
-                document.getElementById("authUsername").value = username;
-
-            } catch (err) {
-                console.error("Ro'yxatdan o'tish xatosi:", err);
-                showToast(t('toast_unexpected'), "error");
+            if (!email || !username || !password || !confirmPassword) {
+                showToast("Barcha maydonlarni to'ldiring!", "error");
+                return;
             }
+
+            if (password !== confirmPassword) {
+                showToast("Parollar mos kelmadi!", "error");
+                return;
+            }
+
+            const { data, error } = await supabaseClient.auth.signUp({ 
+                email: email, 
+                password: password,
+                options: { data: { username: username } }
+            });
+
+            if (error) {
+                showToast("Bu email band yoki xato kiritildi.", "error");
+                return;
+            }
+
+            localStorage.setItem(`user_email_${username.toLowerCase()}`, email);
+            showToast("Muvaffaqiyatli ro'yxatdan o'tdingiz!", "success");
+            setAuthMode('login');
+            document.getElementById("authUsername").value = username;
         }
 
         async function logoutUser() {
             await supabaseClient.auth.signOut();
             currentUser = null;
+            localStorage.removeItem('narx_active_tab');
             updateAuthUI();
-            showToast(t('toast_logged_out'));
+            showToast("Tizimdan chiqdingiz.", "warning");
         }
 
-        function switchTab(tabId, btnElement) {
-            if (!currentUser && tabId !== 'profileTab') {
+        function openForgotPasswordModal() {
+            const modal = document.createElement('div');
+            modal.id = 'forgotModal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 style="color: #38bdf8; margin-top: 0; font-size: 16px;">🔑 Parolni tiklash</h3>
+                    <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">Profilingizga ulangan Emaili kiriting:</p>
+                    <input type="email" id="resetEmailInput" placeholder="Email manzil..." style="margin-bottom: 10px;">
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn" onclick="sendPasswordReset()" style="background: #38bdf8; color: #0f172a; padding: 8px;">Yuborish</button>
+                        <button class="action-btn" onclick="document.getElementById('forgotModal').remove()" style="background: #475569; padding: 8px;">Yopish</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function sendPasswordReset() {
+            const email = document.getElementById('resetEmailInput').value.trim();
+            if (!email) {
+                showToast("Emaili kiriting!", "error");
                 return;
             }
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+            if (error) {
+                showToast("Xatolik yuz berdi.", "error");
+            } else {
+                showToast("Parolni tiklash havolasi emailingizga yuborildi!", "success");
+                document.getElementById('forgotModal').remove();
+            }
+        }
+
+        function switchTab(tabId, btnElement, saveState = true) {
+            if (!currentUser && tabId !== 'profileTab') return;
 
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+            
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) targetTab.classList.add('active');
             if (btnElement) btnElement.classList.add('active');
+
+            if (saveState) {
+                localStorage.setItem('narx_active_tab', tabId);
+            }
 
             if (tabId === 'favoritesTab') {
                 document.getElementById('favoritesSearchInput').value = "";
                 displayFavorites();
             }
-
             if (tabId === 'adminTab' && currentUser) {
                 fetchReportedProducts();
             }
@@ -1370,75 +1322,56 @@
         function previewFileName(input, targetId) {
             const fileChosenText = document.getElementById(targetId);
             if (input.files && input.files[0]) {
-                fileChosenText.textContent = t('file_chosen_prefix') + input.files[0].name;
+                fileChosenText.textContent = "Tanlandi: " + input.files[0].name;
                 fileChosenText.style.color = "#38bdf8";
             } else {
-                fileChosenText.textContent = t('file_not_chosen');
+                fileChosenText.textContent = t('fileNotChosen');
                 fileChosenText.style.color = "#94a3b8";
             }
         }
 
         function escapeHtml(str) {
             if (!str) return '';
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
+            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
         }
 
         function toggleFavorite(productName) {
             const index = favorites.indexOf(productName);
-            if (index > -1) {
-                favorites.splice(index, 1);
-            } else {
-                favorites.push(productName);
-            }
+            if (index > -1) favorites.splice(index, 1);
+            else favorites.push(productName);
             localStorage.setItem('narx_favorites', JSON.stringify(favorites));
             displayProducts(products);
-            if (document.getElementById('favoritesTab').classList.contains('active')) {
-                displayFavorites();
-            }
+            if (document.getElementById('favoritesTab').classList.contains('active')) displayFavorites();
         }
 
         function shareProduct(productName) {
             let groupedEntries = products.filter(p => p.name.toLowerCase() === productName.toLowerCase());
-            let shareText = `🧥 ${t('share_title')} ${productName}\n📍 ${t('share_prices')}\n`;
-            
+            let shareText = `🧥 ${productName}\n📍 Shahrixon:\n`;
             groupedEntries.forEach(e => {
                 let priceFormatted = Number(e.price).toLocaleString('uz-UZ');
-                let orientirText = e.orientir ? ` (${t('orientir_label')} ${e.orientir})` : '';
+                let orientirText = e.orientir ? ` (${t('orientirLabel')} ${e.orientir})` : '';
                 shareText += `- ${e.store}${orientirText}: ${priceFormatted} so'm\n`;
             });
-            shareText += `\n${t('share_footer')}`;
+            shareText += `\n"Bozor" app.`;
 
             if (navigator.share) {
-                navigator.share({
-                    title: productName,
-                    text: shareText
-                }).catch(() => {});
+                navigator.share({ title: productName, text: shareText }).catch(() => {});
             } else {
                 navigator.clipboard.writeText(shareText);
-                showToast(t('toast_copied'));
+                showToast("Ma'lumot nusxalandi!", "success");
             }
         }
 
         function handleSearchInput() {
             const query = document.getElementById("searchInput").value.toLowerCase().trim();
             const suggestionsList = document.getElementById("suggestionsList");
-            
             filterProducts();
 
-            if (!query) {
-                suggestionsList.style.display = "none";
-                return;
-            }
-
+            if (!query) { suggestionsList.style.display = "none"; return; }
             let uniqueNames = [...new Set(products.map(p => p.name))];
             let matched = uniqueNames.filter(name => name.toLowerCase().includes(query)).slice(0, 5);
 
-            if (matched.length === 0) {
-                suggestionsList.style.display = "none";
-                return;
-            }
+            if (matched.length === 0) { suggestionsList.style.display = "none"; return; }
 
             suggestionsList.innerHTML = "";
             matched.forEach(name => {
@@ -1452,7 +1385,6 @@
                 };
                 suggestionsList.appendChild(div);
             });
-
             suggestionsList.style.display = "block";
         }
 
@@ -1466,45 +1398,26 @@
         async function fetchReportsList() {
             try {
                 const { data, error } = await supabaseClient.from('reports').select('product_id');
-                if (!error && data) {
-                    reportedProductIds = new Set(data.map(r => String(r.product_id)));
-                }
-            } catch (err) {
-                console.error("Shikoyatlarni yuklashda xatolik:", err);
-            }
+                if (!error && data) reportedProductIds = new Set(data.map(r => String(r.product_id)));
+            } catch (err) {}
         }
 
         async function fetchProducts() {
             try {
                 await fetchReportsList();
-                const { data, error } = await supabaseClient
-                    .from('products')
-                    .select('*')
-                    .order('price', { ascending: true });
-
+                const { data, error } = await supabaseClient.from('products').select('*').order('price', { ascending: true });
                 if (error) throw error;
-
                 products = data || [];
-                fetchReviewsData();
+                productReviews = JSON.parse(localStorage.getItem('narx_reviews_data')) || {};
                 displayProducts(products);
-                if (document.getElementById('favoritesTab').classList.contains('active')) {
-                    displayFavorites();
-                }
-            } catch (err) {
-                console.error("Mahsulotlarni yuklash xatosi:", err);
-                document.getElementById("productList").innerHTML = `<div style="text-align: center; color: #f87171; padding: 20px;">${t('toast_error')}</div>`;
-            }
-        }
-
-        function fetchReviewsData() {
-            productReviews = JSON.parse(localStorage.getItem('narx_reviews_data')) || {};
+                if (document.getElementById('favoritesTab').classList.contains('active')) displayFavorites();
+            } catch (err) {}
         }
 
         function getAvgRating(productId) {
             const list = productReviews[productId] || [];
             if (list.length === 0) return 0;
-            const sum = list.reduce((a, b) => a + b.rating, 0);
-            return Math.round(sum / list.length);
+            return Math.round(list.reduce((a, b) => a + b.rating, 0) / list.length);
         }
 
         function displayProducts(items, containerId = "productList", isFavoritesView = false) {
@@ -1519,7 +1432,7 @@
             });
 
             if (Object.keys(grouped).length === 0) {
-                listContainer.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px;">${isFavoritesView ? t('no_saved_or_matched') : t('no_products_found')}</div>`;
+                listContainer.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px;">${isFavoritesView ? t('noFavorites') : "Hech qanday mahsulot topilmadi."}</div>`;
                 return;
             }
 
@@ -1536,30 +1449,23 @@
                 header.className = "product-header";
                 
                 let isActivated = localStorage.getItem('narx_app_activated') === 'true';
-                let headerActionsHtml = `<button class="icon-btn" onclick="shareProduct('${escapeHtml(productName)}')" title="Ulashish">🔗</button>`;
+                let headerActionsHtml = `<button class="icon-btn" onclick="shareProduct('${escapeHtml(productName)}')" title="${t('shareTooltip')}">🔗</button>`;
                 if (!isActivated) {
-                    headerActionsHtml += `<button class="icon-btn" onclick="toggleFavorite('${escapeHtml(productName)}')" title="Saqlash">${isFav ? '💾' : '📥'}</button>`;
+                    headerActionsHtml += `<button class="icon-btn" onclick="toggleFavorite('${escapeHtml(productName)}')" title="${t('saveTooltip')}">${isFav ? '💾' : '📥'}</button>`;
                 }
 
-                header.innerHTML = `
-                    <span>${escapeHtml(productName)}</span>
-                    <div class="header-actions">
-                        ${headerActionsHtml}
-                    </div>
-                `;
+                header.innerHTML = `<span>${escapeHtml(productName)}</span><div class="header-actions">${headerActionsHtml}</div>`;
                 card.appendChild(header);
 
                 let contentDiv = document.createElement("div");
                 let highlightList = [cheapest];
-                if (bestQuality && bestQuality.id !== cheapest.id && getAvgRating(bestQuality.id) > 0) {
-                    highlightList.push(bestQuality);
-                }
+                if (bestQuality && bestQuality.id !== cheapest.id && getAvgRating(bestQuality.id) > 0) highlightList.push(bestQuality);
 
                 highlightList.forEach((e, index) => {
                     if (reportedProductIds.has(String(e.id))) {
                         let warningDiv = document.createElement("div");
                         warningDiv.className = "warning-banner";
-                        warningDiv.innerHTML = `⚠️ <strong>Diqqat:</strong> Bu do'kondagi narx yoki ma'lumot bo'yicha foydalanuvchilar shikoyat qilishgan! Ehtiyot bo'ling.`;
+                        warningDiv.innerHTML = t('warningBannerText');
                         contentDiv.appendChild(warningDiv);
                     }
 
@@ -1567,29 +1473,24 @@
                         let imgElement = document.createElement("img");
                         imgElement.src = e.image;
                         imgElement.className = "product-img";
-                        imgElement.alt = productName;
                         contentDiv.appendChild(imgElement);
                     }
 
                     let avgRating = getAvgRating(e.id);
                     let starsHtml = avgRating > 0 ? "⭐".repeat(avgRating) : "";
                     let badges = "";
-                    if (e.id === cheapest.id) badges += `<span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">${t('cheapest_badge')}</span>`;
-                    if (e.id === bestQuality.id && avgRating > 0) badges += `<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6;">${t('quality_badge')}</span>`;
+                    if (e.id === cheapest.id) badges += `<span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">${t('cheapestBadge')}</span>`;
+                    if (e.id === bestQuality.id && avgRating > 0) badges += `<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6;">${t('bestQualityBadge')}</span>`;
 
                     let formattedPrice = Number(e.price).toLocaleString('uz-UZ');
-                    let stockText = (e.stock !== null && e.stock !== undefined && e.stock !== "") ? `<span class="stock-badge">${t('stock_label')} ${e.stock} dona</span>` : "";
-                    let orientirHtml = e.orientir ? `<div class="store-orientir">${t('orientir_label')} ${escapeHtml(e.orientir)}</div>` : "";
+                    let stockText = (e.stock !== null && e.stock !== undefined && e.stock !== "") ? `<span class="stock-badge">${t('stockLabel')} ${e.stock} dona</span>` : "";
+                    let orientirHtml = e.orientir ? `<div class="store-orientir">${t('orientirLabel')} ${escapeHtml(e.orientir)}</div>` : "";
                     
                     let storeItem = document.createElement("div");
                     storeItem.className = "store-item";
                     storeItem.innerHTML = `
-                        <div class="store-info">
-                            <span><strong>${escapeHtml(e.store)}</strong> ${badges}</span>
-                            ${orientirHtml}
-                            ${stockText}
-                        </div>
-                        <span><span style="font-weight: 500;">${formattedPrice} so'm</span> <span class="stars">${starsHtml}</span></span>
+                        <div class="store-info"><span><strong>${escapeHtml(e.store)}</strong> ${badges}</span>${orientirHtml}${stockText}</div>
+                        <span><span>${formattedPrice} so'm</span> <span class="stars">${starsHtml}</span></span>
                     `;
                     contentDiv.appendChild(storeItem);
 
@@ -1597,29 +1498,19 @@
                     if (reviews.length > 0) {
                         let reviewSec = document.createElement("div");
                         reviewSec.className = "reviews-section";
-                        let reviewsHtml = reviews.map(r => `<div class="review-item"><strong>@${escapeHtml(r.user)}:</strong> "${escapeHtml(r.text)}" (${"⭐".repeat(r.rating)})</div>`).join('');
-                        reviewSec.innerHTML = reviewsHtml;
+                        reviewSec.innerHTML = reviews.map(r => `<div class="review-item"><strong>@${escapeHtml(r.user)}:</strong> "${escapeHtml(r.text)}"</div>`).join('');
                         contentDiv.appendChild(reviewSec);
                     }
 
-                    let uploaderInfo = e.user_email ? `${t('uploader_label')} @${e.user_email.split('@')[0]}` : t('unknown_uploader');
+                    let uploaderInfo = e.user_email ? `${t('uploaderLabel')} @${e.user_email.split('@')[0]}` : "";
                     let footerDiv = document.createElement("div");
                     footerDiv.className = "card-footer";
-                    footerDiv.innerHTML = `
-                        <span>${uploaderInfo}</span>
-                        <div class="footer-buttons">
-                            <button type="button" class="rate-btn" onclick="openRateModal('${e.id}')">${t('rate_btn_text')}</button>
-                            <button type="button" class="edit-btn" onclick="promptEditProduct('${e.id}')">${t('edit_btn_text')}</button>
-                            <button type="button" class="report-btn" onclick="reportProduct('${e.id}')">${t('report_btn_text')}</button>
-                        </div>
-                    `;
+                    footerDiv.innerHTML = `<span>${uploaderInfo}</span><div class="footer-buttons">
+                        <button class="rate-btn" onclick="openRateModal('${e.id}')">${t('rateBtn')}</button>
+                        <button class="edit-btn" onclick="promptEditProduct('${e.id}')">${t('editBtn')}</button>
+                        <button class="report-btn" onclick="reportProduct('${e.id}')">${t('reportBtn')}</button>
+                    </div>`;
                     contentDiv.appendChild(footerDiv);
-
-                    if (index < highlightList.length - 1) {
-                        let divider = document.createElement("div");
-                        divider.style.cssText = "border-top: 1px dashed rgba(255,255,255,0.1); margin: 8px 0;";
-                        contentDiv.appendChild(divider);
-                    }
                 });
 
                 card.appendChild(contentDiv);
@@ -1628,30 +1519,18 @@
         }
 
         function openRateModal(productId) {
-            const existingModal = document.getElementById('rateModal');
-            if (existingModal) existingModal.remove();
-
             const modal = document.createElement('div');
             modal.id = 'rateModal';
             modal.className = 'modal-overlay';
+            // Baholashdagi izoh maydoni majburiy qilindi, placeholder va matn qo'shildi
             modal.innerHTML = `
                 <div class="modal-content">
-                    <h3 style="color: #facc15; margin-top: 0; font-size: 16px;">${t('rate_modal_title')}</h3>
-                    <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">${t('rate_modal_desc')}</p>
-                    
-                    <select id="userRatingSelect" style="margin-bottom: 10px;">
-                        <option value="5">${t('rate_5')}</option>
-                        <option value="4">${t('rate_4')}</option>
-                        <option value="3">${t('rate_3')}</option>
-                        <option value="2">${t('rate_2')}</option>
-                        <option value="1">${t('rate_1')}</option>
-                    </select>
-
-                    <textarea id="userReviewText" placeholder="${t('review_textarea_placeholder')}" rows="3" style="margin-bottom: 10px;"></textarea>
-
-                    <div style="display: flex; gap: 8px;">
-                        <button class="action-btn" onclick="submitRating('${productId}')" style="background: #facc15; color: #0f172a; padding: 8px; font-size: 13px;">${t('send_btn')}</button>
-                        <button class="action-btn" onclick="document.getElementById('rateModal').remove()" style="background: #475569; padding: 8px; font-size: 13px;">${t('cancel_btn')}</button>
+                    <h3 style="color: #facc15; margin-top: 0; font-size: 16px;">${t('rateModalTitle')}</h3>
+                    <select id="userRatingSelect"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
+                    <textarea id="userReviewText" placeholder="Izoh (Majburiy) *" rows="3" required></textarea>
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button class="action-btn" onclick="submitRating('${productId}')" style="background: #facc15; color: #0f172a; height: 38px;">${t('rateSubmitBtn')}</button>
+                        <button class="action-btn" onclick="document.getElementById('rateModal').remove()" style="background: #475569; height: 38px;">${t('rateCancelBtn')}</button>
                     </div>
                 </div>
             `;
@@ -1661,121 +1540,65 @@
         function submitRating(productId) {
             const rating = parseInt(document.getElementById('userRatingSelect').value);
             const reviewText = document.getElementById('userReviewText').value.trim();
-
-            if (!reviewText) {
-                showToast(t('toast_fill_comment'), "error");
-                return;
+            // Izoh majburiy ekanligini tekshirish validatsiyasi
+            if (!reviewText) { 
+                showToast("Izoh kiritish majburiy!", "error"); 
+                return; 
             }
-
             const username = currentUser ? (currentUser.user_metadata?.username || currentUser.email.split('@')[0]) : 'Xaridor';
 
-            if (!productReviews[productId]) {
-                productReviews[productId] = [];
-            }
-
-            productReviews[productId].push({
-                user: username,
-                rating: rating,
-                text: reviewText
-            });
-
+            if (!productReviews[productId]) productReviews[productId] = [];
+            productReviews[productId].push({ user: username, rating, text: reviewText });
             localStorage.setItem('narx_reviews_data', JSON.stringify(productReviews));
-            showToast(t('toast_review_success'));
+            showToast("Baho saqlandi!", "success");
             document.getElementById('rateModal').remove();
             displayProducts(products);
         }
 
-        function displayFavorites() {
-            displayProducts(products, "favoritesList", true);
-        }
-
+        function displayFavorites() { displayProducts(products, "favoritesList", true); }
         function filterFavorites() {
             const query = document.getElementById("favoritesSearchInput").value.toLowerCase().trim();
-            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-            displayProducts(filtered, "favoritesList", true);
+            displayProducts(products.filter(p => p.name.toLowerCase().includes(query)), "favoritesList", true);
         }
-
         function filterProducts() {
             const query = document.getElementById("searchInput").value.toLowerCase();
-            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-            displayProducts(filtered);
+            displayProducts(products.filter(p => p.name.toLowerCase().includes(query)));
         }
 
         function promptEditProduct(productId) {
-            const existingModal = document.getElementById('editAuthModal');
-            if (existingModal) existingModal.remove();
-
             const modal = document.createElement('div');
             modal.id = 'editAuthModal';
             modal.className = 'modal-overlay';
             modal.innerHTML = `
                 <div class="modal-content">
-                    <h3 style="color: #f59e0b; margin-top: 0; font-size: 16px;">${t('edit_auth_title')}</h3>
-                    <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">${t('edit_auth_desc')}</p>
-                    <input type="password" id="editActivationInput" placeholder="${t('enter_special_code')}" onkeydown="if(event.key==='Enter'){event.preventDefault(); verifyAndOpenEditModal('${productId}');}" autocomplete="off" style="margin-bottom: 10px;">
-                    <div style="display: flex; gap: 8px;">
-                        <button class="action-btn" onclick="verifyAndOpenEditModal('${productId}')" style="background: #f59e0b; padding: 8px; font-size: 13px;">${t('verify_code_btn')}</button>
-                        <button class="action-btn" onclick="document.getElementById('editAuthModal').remove()" style="background: #475569; padding: 8px; font-size: 13px;">${t('cancel_btn')}</button>
+                    <h3 style="color: #f59e0b; margin-top: 0; font-size: 16px;">🔒 Litsenziya kodi kerak</h3>
+                    <input type="password" id="editActivationInput" placeholder="Kod...">
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button class="action-btn" onclick="if(document.getElementById('editActivationInput').value.trim() === SPECIAL_SELLER_CODE) { document.getElementById('editAuthModal').remove(); openEditModal('${productId}'); } else { showToast('Xato kod!', 'error'); }" style="background: #f59e0b; height: 38px;">Tasdiqlash</button>
+                        <button class="action-btn" onclick="document.getElementById('editAuthModal').remove()" style="background: #475569; height: 38px;">Bekor</button>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
         }
 
-        function verifyAndOpenEditModal(productId) {
-            const codeInput = document.getElementById('editActivationInput').value.trim();
-            if (codeInput !== SPECIAL_SELLER_CODE) {
-                showToast(t('toast_wrong_license'), "error");
-                return;
-            }
-            document.getElementById('editAuthModal').remove();
-            openEditModal(productId);
-        }
-
         async function openEditModal(productId) {
             const product = products.find(p => String(p.id) === String(productId));
-            if (!product) {
-                showToast(t('toast_error'), "error");
-                return;
-            }
-
-            const existingModal = document.getElementById('editProductModal');
-            if (existingModal) existingModal.remove();
-
+            if (!product) return;
             const modal = document.createElement('div');
             modal.id = 'editProductModal';
             modal.className = 'modal-overlay';
             modal.innerHTML = `
                 <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
-                    <h3 style="color: #38bdf8; margin-top: 0; font-size: 16px;">${t('edit_product_title')}</h3>
-                    
-                    <label style="font-size: 11px; color: #94a3b8;">${t('product_name_label')}</label>
-                    <input type="text" id="editName" value="${escapeHtml(product.name)}" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveEditedProduct('${productId}');}">
-                    
-                    <label style="font-size: 11px; color: #94a3b8;">${t('store_name_label')}</label>
-                    <input type="text" id="editStore" value="${escapeHtml(product.store)}" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveEditedProduct('${productId}');}">
-                    
-                    <label style="font-size: 11px; color: #94a3b8;">${t('orientir_label_input')}</label>
-                    <input type="text" id="editOrientir" value="${escapeHtml(product.orientir || '')}" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveEditedProduct('${productId}');}">
-                    
-                    <label style="font-size: 11px; color: #94a3b8;">${t('price_label_input')}</label>
-                    <input type="number" id="editPrice" value="${product.price}" step="1000" min="0" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveEditedProduct('${productId}');}">
-                    
-                    <label style="font-size: 11px; color: #94a3b8;">${t('stock_label_input')}</label>
-                    <input type="number" id="editStock" value="${product.stock !== null ? product.stock : ''}" min="0" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveEditedProduct('${productId}');}">
-                    
-                    <label style="font-size: 11px; color: #94a3b8;">${t('image_label_input')}</label>
-                    <div class="file-upload-wrapper">
-                        <input type="file" id="editImage" class="file-upload-input" accept="image/*" onchange="previewFileName(this, 'editFileChosenText')">
-                        <label for="editImage" class="file-upload-btn">
-                            <span class="file-main-text">${t('change_image_btn')}</span>
-                            <span class="file-sub-text" id="editFileChosenText">${t('new_image_not_chosen')}</span>
-                        </label>
-                    </div>
-
+                    <h3 style="color: #38bdf8; margin-top: 0; font-size: 16px;">${t('editModalTitle')}</h3>
+                    <input type="text" id="editName" value="${escapeHtml(product.name)}">
+                    <input type="text" id="editStore" value="${escapeHtml(product.store)}">
+                    <input type="text" id="editOrientir" value="${escapeHtml(product.orientir || '')}">
+                    <input type="number" id="editPrice" value="${product.price}">
+                    <input type="number" id="editStock" value="${product.stock !== null ? product.stock : ''}">
                     <div style="display: flex; gap: 8px; margin-top: 10px;">
-                        <button class="action-btn" onclick="saveEditedProduct('${productId}')" style="background: #10b981; padding: 10px; font-size: 13px;">${t('save_btn')}</button>
-                        <button class="action-btn" onclick="document.getElementById('editProductModal').remove()" style="background: #475569; padding: 10px; font-size: 13px;">${t('cancel_btn')}</button>
+                        <button class="action-btn" onclick="saveEditedProduct('${productId}')" style="background: #10b981; height: 38px;">${t('editSaveBtn')}</button>
+                        <button class="action-btn" onclick="document.getElementById('editProductModal').remove()" style="background: #475569; height: 38px;">${t('editCancelBtn')}</button>
                     </div>
                 </div>
             `;
@@ -1783,83 +1606,31 @@
         }
 
         async function saveEditedProduct(productId) {
-            try {
-                const name = document.getElementById('editName').value.trim();
-                const store = document.getElementById('editStore').value.trim();
-                const orientir = document.getElementById('editOrientir').value.trim();
-                const price = document.getElementById('editPrice').value.trim();
-                const stock = document.getElementById('editStock').value.trim();
-                const imageFile = document.getElementById('editImage').files[0];
+            const name = document.getElementById('editName').value.trim();
+            const store = document.getElementById('editStore').value.trim();
+            const orientir = document.getElementById('editOrientir').value.trim();
+            const price = document.getElementById('editPrice').value.trim();
+            const stock = document.getElementById('editStock').value.trim();
 
-                if (!name || !store || !orientir || !price) {
-                    showToast(t('toast_fill_required'), "error");
-                    return;
-                }
-
-                if (imageFile && !validateImageFile(imageFile)) {
-                    return;
-                }
-
-                const product = products.find(p => String(p.id) === String(productId));
-                let imageUrl = product ? product.image : null;
-
-                if (imageFile) {
-                    const fileName = `${Date.now()}_${imageFile.name}`;
-                    const { error: uploadError } = await supabaseClient.storage
-                        .from('product-images')
-                        .upload(fileName, imageFile);
-
-                    if (uploadError) {
-                        showToast(t('toast_upload_error'), "error");
-                        return;
-                    }
-
-                    const { data: publicUrlData } = supabaseClient.storage
-                        .from('product-images')
-                        .getPublicUrl(fileName);
-
-                    imageUrl = publicUrlData.publicUrl;
-                }
-
-                const { error } = await supabaseClient
-                    .from('products')
-                    .update({
-                        name: name,
-                        store: store,
-                        orientir: orientir,
-                        price: parseFloat(price),
-                        stock: stock ? parseInt(stock) : null,
-                        image: imageUrl
-                    })
-                    .eq('id', productId);
-
-                if (error) throw error;
-
-                showToast(t('toast_edit_success'));
-                document.getElementById('editProductModal').remove();
-                fetchProducts();
-
-            } catch (err) {
-                console.error("Tahrirlash xatosi:", err);
-                showToast(t('toast_save_error'), "error");
-            }
+            if (!name || !store || !orientir || !price) { showToast("Maydonlarni to'ldiring!", "error"); return; }
+            await supabaseClient.from('products').update({ name, store, orientir, price: parseFloat(price), stock: stock ? parseInt(stock) : null }).eq('id', productId);
+            showToast("Tahrirlandi!", "success");
+            document.getElementById('editProductModal').remove();
+            fetchProducts();
         }
 
         function reportProduct(productId) {
-            const existingModal = document.getElementById('reportModal');
-            if (existingModal) existingModal.remove();
-
             const modal = document.createElement('div');
             modal.id = 'reportModal';
             modal.className = 'modal-overlay';
+            // Shikoyat qilish oynasidagi izoh maydoni ham majburiy qilindi va placeholder qo'shildi
             modal.innerHTML = `
                 <div class="modal-content">
-                    <h3 style="color: #f87171; margin-top: 0; font-size: 16px;">${t('report_modal_title')}</h3>
-                    <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">${t('report_modal_desc')}</p>
-                    <textarea id="reportReasonText" placeholder="${t('report_reason_placeholder')}" rows="3" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); submitReport('${productId}');}" style="margin-bottom: 10px;"></textarea>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="action-btn" onclick="submitReport('${productId}')" style="background: #ef4444; padding: 8px; font-size: 13px;">${t('send_btn')}</button>
-                        <button class="action-btn" onclick="document.getElementById('reportModal').remove()" style="background: #475569; padding: 8px; font-size: 13px;">${t('cancel_btn')}</button>
+                    <h3 style="color: #f87171; margin-top: 0; font-size: 16px;">${t('reportModalTitle')}</h3>
+                    <textarea id="reportReasonText" placeholder="Shikoyat sababini yozing (Majburiy) *" rows="3" required></textarea>
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button class="action-btn" onclick="submitReport('${productId}')" style="background: #ef4444; height: 38px;">${t('reportSubmitBtn')}</button>
+                        <button class="action-btn" onclick="document.getElementById('reportModal').remove()" style="background: #475569; height: 38px;">${t('reportCancelBtn')}</button>
                     </div>
                 </div>
             `;
@@ -1867,149 +1638,83 @@
         }
 
         async function submitReport(productId) {
-            try {
-                const reason = document.getElementById('reportReasonText').value.trim();
-                if (!reason) {
-                    showToast(t('toast_fill_reason'), "error");
-                    return;
-                }
-
-                const username = currentUser ? (currentUser.user_metadata?.username || currentUser.email.split('@')[0]) : 'Noma’lum';
-
-                const { error } = await supabaseClient.from('reports').insert([
-                    { product_id: productId, user_email: username, reason: reason }
-                ]);
-
-                if (error) throw error;
-
-                showToast(t('toast_report_success'));
-                document.getElementById('reportModal').remove();
-                await fetchReportsList();
-                displayProducts(products);
-
-            } catch (err) {
-                console.error("Shikoyat yuborishda xatolik:", err);
-                showToast(t('toast_error'), "error");
+            const reason = document.getElementById('reportReasonText').value.trim();
+            if (!reason) { 
+                showToast("Shikoyat sababini yozish majburiy!", "error"); 
+                return; 
             }
+            const username = currentUser ? (currentUser.user_metadata?.username || currentUser.email.split('@')[0]) : 'Noma’lum';
+            await supabaseClient.from('reports').insert([{ product_id: productId, user_email: username, reason }]);
+            showToast("Shikoyat yuborildi!", "success");
+            document.getElementById('reportModal').remove();
+            await fetchReportsList();
+            displayProducts(products);
         }
 
         async function fetchReportedProducts() {
             const adminListDiv = document.getElementById('adminReportedList');
-            adminListDiv.innerHTML = `<div class="loader">${t('loading')}</div>`;
-
-            try {
-                const { data, error } = await supabaseClient.from('reports').select('*');
-                if (error) throw error;
-
-                if (!data || data.length === 0) {
-                    adminListDiv.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 15px;">${t('no_reports')}</div>`;
-                    return;
-                }
-
-                adminListDiv.innerHTML = "";
-                data.forEach(rep => {
-                    let div = document.createElement('div');
-                    div.className = "product-card";
-                    div.innerHTML = `
-                        <p style="font-size: 12px; color: #fca5a5; margin: 0 0 5px 0;"><strong>${t('admin_product_id')}</strong> ${rep.product_id}</p>
-                        <p style="font-size: 12px; color: #cbd5e1; margin: 0 0 5px 0;"><strong>${t('admin_from')}</strong> @${escapeHtml(rep.user_email)}</p>
-                        <p style="font-size: 12px; color: #f8fafc; margin: 0 0 10px 0;"><strong>${t('admin_reason')}</strong> ${escapeHtml(rep.reason)}</p>
-                        <button class="action-btn" onclick="deleteReportAndProduct('${rep.id}', '${rep.product_id}')" style="background: #ef4444; padding: 6px; font-size: 11px;">${t('admin_delete_btn')}</button>
-                    `;
-                    adminListDiv.appendChild(div);
-                });
-            } catch (err) {
-                console.error("Admin ro'yxati xatosi:", err);
-                adminListDiv.innerHTML = `<div style="color: #f87171; text-align: center;">${t('toast_error')}</div>`;
+            adminListDiv.innerHTML = `<div class="loader">${t('adminLoading')}</div>`;
+            const { data } = await supabaseClient.from('reports').select('*');
+            if (!data || data.length === 0) {
+                adminListDiv.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 15px;">Hozircha shikoyatlar yo'q.</div>`;
+                return;
             }
+            adminListDiv.innerHTML = "";
+            data.forEach(rep => {
+                let div = document.createElement('div');
+                div.className = "product-card";
+                div.innerHTML = `
+                    <p style="font-size: 12px; color: #fca5a5; margin: 0 0 5px 0;"><strong>ID:</strong> ${rep.product_id}</p>
+                    <p style="font-size: 12px; color: #cbd5e1; margin: 0 0 5px 0;"><strong>User:</strong> @${escapeHtml(rep.user_email)}</p>
+                    <p style="font-size: 12px; color: #f8fafc; margin: 0 0 10px 0;"><strong>Reason:</strong> ${escapeHtml(rep.reason)}</p>
+                    <button class="action-btn" onclick="deleteReportAndProduct('${rep.id}', '${rep.product_id}')" style="background: #ef4444; height: 34px; font-size: 11px;">O'chirish</button>
+                `;
+                adminListDiv.appendChild(div);
+            });
         }
 
         async function deleteReportAndProduct(reportId, productId) {
-            if (!confirm(t('confirm_delete_report'))) return;
-
-            try {
-                await supabaseClient.from('reports').delete().eq('id', reportId);
-                await supabaseClient.from('products').delete().eq('id', productId);
-
-                showToast(t('toast_delete_success'));
-                fetchReportedProducts();
-                fetchProducts();
-            } catch (err) {
-                console.error("O'chirish xatosi:", err);
-                showToast(t('toast_delete_error'), "error");
-            }
+            if (!confirm("O'chirib tashlamoqchimisiz?")) return;
+            await supabaseClient.from('reports').delete().eq('product_id', productId);
+            await supabaseClient.from('products').delete().eq('id', productId);
+            showToast("O'chirildi!", "success");
+            fetchReportedProducts();
+            fetchProducts();
         }
 
         async function addProduct() {
-            try {
-                const name = document.getElementById('newName').value.trim();
-                const store = document.getElementById('newStore').value.trim();
-                const orientir = document.getElementById('newOrientir').value.trim();
-                const price = document.getElementById('newPrice').value.trim();
-                const stock = document.getElementById('newStock').value.trim();
-                const imageFile = document.getElementById('newImage').files[0];
+            const name = document.getElementById('newName').value.trim();
+            const store = document.getElementById('newStore').value.trim();
+            const orientir = document.getElementById('newOrientir').value.trim();
+            const price = document.getElementById('newPrice').value.trim();
+            const stock = document.getElementById('newStock').value.trim();
+            const imageFile = document.getElementById('newImage').files[0];
 
-                if (!name || !store || !orientir || !price) {
-                    showToast(t('toast_fill_required'), "error");
-                    return;
-                }
+            if (!name || !store || !orientir || !price) { showToast("Maydonlarni to'ldiring!", "error"); return; }
+            if (imageFile && !validateImageFile(imageFile)) return;
 
-                if (imageFile && !validateImageFile(imageFile)) {
-                    return;
-                }
-
-                let imageUrl = null;
-                if (imageFile) {
-                    const fileName = `${Date.now()}_${imageFile.name}`;
-                    const { error: uploadError } = await supabaseClient.storage
-                        .from('product-images')
-                        .upload(fileName, imageFile);
-
-                    if (uploadError) {
-                        showToast(t('toast_upload_error'), "error");
-                        return;
-                    }
-
-                    const { data: publicUrlData } = supabaseClient.storage
-                        .from('product-images')
-                        .getPublicUrl(fileName);
-
-                    imageUrl = publicUrlData.publicUrl;
-                }
-
-                const username = currentUser ? (currentUser.user_metadata?.username || currentUser.email.split('@')[0]) : null;
-
-                const { error } = await supabaseClient.from('products').insert([
-                    {
-                        name: name,
-                        store: store,
-                        orientir: orientir,
-                        price: parseFloat(price),
-                        stock: stock ? parseInt(stock) : null,
-                        image: imageUrl,
-                        user_email: username
-                    }
-                ]);
-
-                if (error) throw error;
-
-                showToast(t('toast_add_success'));
-                document.getElementById('newName').value = '';
-                document.getElementById('newStore').value = '';
-                document.getElementById('newOrientir').value = '';
-                document.getElementById('newPrice').value = '';
-                document.getElementById('newStock').value = '';
-                document.getElementById('newImage').value = '';
-                document.getElementById('fileChosenText').textContent = t('file_not_chosen');
-                document.getElementById('fileChosenText').style.color = "#94a3b8";
-
-                fetchProducts();
-                switchTab('productsTab', document.querySelector('.nav-btn'));
-
-            } catch (err) {
-                console.error("Qo'shish xatosi:", err);
-                showToast(t('toast_error'), "error");
+            let imageUrl = null;
+            if (imageFile) {
+                const fileName = `${Date.now()}_${imageFile.name}`;
+                await supabaseClient.storage.from('product-images').upload(fileName, imageFile);
+                const { data } = supabaseClient.storage.from('product-images').getPublicUrl(fileName);
+                imageUrl = data.publicUrl;
             }
+
+            const username = currentUser ? (currentUser.user_metadata?.username || currentUser.email.split('@')[0]) : null;
+            await supabaseClient.from('products').insert([{ name, store, orientir, price: parseFloat(price), stock: stock ? parseInt(stock) : null, image: imageUrl, user_email: username }]);
+
+            showToast("Mahsulot qo'shildi!", "success");
+            document.getElementById('newName').value = '';
+            document.getElementById('newStore').value = '';
+            document.getElementById('newOrientir').value = '';
+            document.getElementById('newPrice').value = '';
+            document.getElementById('newStock').value = '';
+            document.getElementById('newImage').value = '';
+            document.getElementById('fileChosenText').textContent = t('fileNotChosen');
+
+            fetchProducts();
+            switchTab('productsTab', document.querySelector('.nav-btn'));
         }
     </script>
 </body>

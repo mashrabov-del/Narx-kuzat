@@ -642,7 +642,7 @@
             <div id="addTab" class="tab-content">
                 <div id="activationLockSection" class="profile-box" style="margin-bottom: 15px;">
                     <h3 id="lockTitle" style="color: #ffb703; font-size: 15px; margin-top: 0;">🔒 Maxsus litsenziya kodi talab etiladi</h3>
-                    <p id="lockDesc" style="font-size: 11px; color: #d1ada7; margin-bottom: 12px;">qoshish uchun dastur admini tomonidan berilgan kod talab qilinadi.<br>shu raqamga qo'ngiroq qiling: +998932228312</p>
+                    <p id="lockDesc" style="font-size: 11px; color: #d1ada7; margin-bottom: 12px;">qoshish uchun dastur admini tomonidan berilgan kod talab qilinadi.<br>shu raqamga qo'ngiroq qiling: +9989322283.<br><a href="@mashrabov_abubakr">Admin bn boglanish</a></p>
                     <input type="password" id="activationCodeInput" placeholder="Maxsus kodni kiriting..." onkeydown="handleEnterKey(event, 'activation')" autocomplete="off">
                     <button class="action-btn" id="lockVerifyBtn" onclick="verifyActivationCode()" style="background: linear-gradient(135deg, #ff7b00 0%, #ffb703 100%);">Kodni tasdiqlash</button>
                 </div>
@@ -709,6 +709,7 @@
                         <p id="welcomeUserText" style="font-size: 13px; color: #d1ada7; margin-bottom: 5px;">Xush kelibsiz:</p>
                         <p id="userNameDisplay" style="font-size: 17px; font-weight: bold; color: #ffb703; margin-bottom: 2px;"></p>
                         <p id="userHandleDisplay" style="font-size: 11px; color: #d1ada7; margin-bottom: 15px;"></p>
+                        <button class="action-btn" id="changePasswordBtnText" onclick="openChangePasswordModal()" style="background: #4a3852; margin-bottom: 10px;">🔑 Parolni o'zgartirish</button>
                         <button class="action-btn" id="logoutBtnText" onclick="openLogoutModal()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">Chiqish</button>
                     </div>
                 </div>
@@ -757,7 +758,11 @@
                             admin_login_success: "Admin sifatida muvaffaqiyatli kirdingiz!",
                             logout_success: "Tizimdan chiqdingiz.",
                             error_generic: "Xatolik yuz berdi!",
-                            saved_success: "Ma'lumotlar saqlandi."
+                            saved_success: "Ma'lumotlar saqlandi.",
+                            reset_email_sent: "Parolni tiklash havolasi emailingizga yuborildi.",
+                            password_mismatch: "Parollar mos kelmadi!",
+                            password_too_short: "Parol kamida 6 belgidan iborat bo'lishi kerak!",
+                            password_changed_success: "Parolingiz muvaffaqiyatli o'zgartirildi!"
                         }
                     }
                 },
@@ -767,7 +772,11 @@
                             admin_login_success: "Вы успешно вошли как админ!",
                             logout_success: "Вы вышли из системы.",
                             error_generic: "Произошла ошибка!",
-                            saved_success: "Данные сохранены."
+                            saved_success: "Данные сохранены.",
+                            reset_email_sent: "Ссылка для восстановления пароля отправлена на ваш email.",
+                            password_mismatch: "Пароли не совпадают!",
+                            password_too_short: "Пароль должен содержать минимум 6 символов!",
+                            password_changed_success: "Пароль успешно изменён!"
                         }
                     }
                 },
@@ -777,7 +786,11 @@
                             admin_login_success: "Successfully logged in as admin!",
                             logout_success: "You have logged out.",
                             error_generic: "An error occurred!",
-                            saved_success: "Data saved successfully."
+                            saved_success: "Data saved successfully.",
+                            reset_email_sent: "Password reset link sent to your email.",
+                            password_mismatch: "Passwords do not match!",
+                            password_too_short: "Password must be at least 6 characters!",
+                            password_changed_success: "Your password has been changed successfully!"
                         }
                     }
                 }
@@ -894,7 +907,17 @@
                 writeCommentWarning: "Izoh yozing!",
                 rateSaved: "Baho saqlandi!",
                 confirmAddTitle: "💾 Saqlash",
-                confirmAddDesc: "Rostdan ham saqlashni istaysizmi?"
+                confirmAddDesc: "Rostdan ham saqlashni istaysizmi?",
+                forgotModalTitle: "🔑 Parolni tiklash",
+                forgotModalDesc: "Profilingizga ulangan Emailni kiriting:",
+                resetEmailPlaceholder: "Email manzil...",
+                sendBtn: "Yuborish",
+                changePasswordBtn: "🔑 Parolni o'zgartirish",
+                changePasswordModalTitle: "🔑 Parolni o'zgartirish",
+                changePasswordModalDesc: "Yangi parolingizni kiriting:",
+                newPasswordPlaceholder: "Yangi parol...",
+                confirmNewPasswordPlaceholder: "Yangi parolni takrorlang...",
+                changePasswordSubmitBtn: "Saqlash"
             },
             ru: {
                 appName: "Рынок",
@@ -989,7 +1012,17 @@
                 writeCommentWarning: "Напишите отзыв!",
                 rateSaved: "Оценка сохранена!",
                 confirmAddTitle: "💾 Сохранение",
-                confirmAddDesc: "Вы действительно хотите сохранить?"
+                confirmAddDesc: "Вы действительно хотите сохранить?",
+                forgotModalTitle: "🔑 Восстановление пароля",
+                forgotModalDesc: "Введите Email, привязанный к вашему профилю:",
+                resetEmailPlaceholder: "Email адрес...",
+                sendBtn: "Отправить",
+                changePasswordBtn: "🔑 Изменить пароль",
+                changePasswordModalTitle: "🔑 Изменить пароль",
+                changePasswordModalDesc: "Введите новый пароль:",
+                newPasswordPlaceholder: "Новый пароль...",
+                confirmNewPasswordPlaceholder: "Повторите новый пароль...",
+                changePasswordSubmitBtn: "Сохранить"
             },
             en: {
                 appName: "Market",
@@ -1084,7 +1117,17 @@
                 writeCommentWarning: "Please write a review!",
                 rateSaved: "Rating saved!",
                 confirmAddTitle: "💾 Save Product",
-                confirmAddDesc: "Are you sure you want to save?"
+                confirmAddDesc: "Are you sure you want to save?",
+                forgotModalTitle: "🔑 Reset Password",
+                forgotModalDesc: "Enter the Email linked to your profile:",
+                resetEmailPlaceholder: "Email address...",
+                sendBtn: "Send",
+                changePasswordBtn: "🔑 Change Password",
+                changePasswordModalTitle: "🔑 Change Password",
+                changePasswordModalDesc: "Enter your new password:",
+                newPasswordPlaceholder: "New password...",
+                confirmNewPasswordPlaceholder: "Confirm new password...",
+                changePasswordSubmitBtn: "Save"
             }
         };
 
@@ -1168,6 +1211,7 @@
             safeSetText('authActionBtn', (currentAuthMode === 'login') ? t('loginActionBtn') : t('registerActionBtn'));
             safeSetText('forgotPasswordBtn', t('forgotPasswordLink'));
             safeSetText('welcomeUserText', t('welcomeText'));
+            safeSetText('changePasswordBtnText', t('changePasswordBtn'));
             safeSetText('logoutBtnText', t('logoutBtn'));
             safeSetText('adminTitle', t('adminTitleText'));
             safeSetText('adminDesc', t('adminDescText'));
@@ -1505,11 +1549,11 @@
             modal.className = 'modal-overlay';
             modal.innerHTML = `
                 <div class="modal-content">
-                    <h3 style="color: #ffb703; margin-top: 0; font-size: 16px;">🔑 Parolni tiklash</h3>
-                    <p style="font-size: 12px; color: #d1ada7; margin-bottom: 10px;">Profilingizga ulangan Emaili kiriting:</p>
-                    <input type="email" id="resetEmailInput" placeholder="Email manzil..." style="margin-bottom: 10px;">
+                    <h3 style="color: #ffb703; margin-top: 0; font-size: 16px;">${t('forgotModalTitle')}</h3>
+                    <p style="font-size: 12px; color: #d1ada7; margin-bottom: 10px;">${t('forgotModalDesc')}</p>
+                    <input type="email" id="resetEmailInput" placeholder="${t('resetEmailPlaceholder')}" style="margin-bottom: 10px;">
                     <div style="display: flex; gap: 8px;">
-                        <button class="action-btn" onclick="sendPasswordReset()" style="background: #ffb703; color: #120c18; height: 38px;">Yuborish</button>
+                        <button class="action-btn" onclick="sendPasswordReset()" style="background: #ffb703; color: #120c18; height: 38px;">${t('sendBtn')}</button>
                         <button class="action-btn" onclick="document.getElementById('forgotModal').remove()" style="background: #4a3852; height: 38px;">${t('close')}</button>
                     </div>
                 </div>
@@ -1528,8 +1572,59 @@
             if (error) {
                 showToast('notifications.error_generic', 'error');
             } else {
-                showToast('notifications.saved_success', 'success');
+                showToast('notifications.reset_email_sent', 'success');
                 const m = document.getElementById('forgotModal');
+                if (m) m.remove();
+            }
+        }
+
+        function openChangePasswordModal() {
+            if (!currentUser) {
+                showToast('notifications.error_generic', 'error');
+                return;
+            }
+            const modal = document.createElement('div');
+            modal.id = 'changePasswordModal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 style="color: #ffb703; margin-top: 0; font-size: 16px;">${t('changePasswordModalTitle')}</h3>
+                    <p style="font-size: 12px; color: #d1ada7; margin-bottom: 10px;">${t('changePasswordModalDesc')}</p>
+                    <input type="password" id="newPasswordInput" placeholder="${t('newPasswordPlaceholder')}" style="margin-bottom: 10px;">
+                    <input type="password" id="confirmNewPasswordInput" placeholder="${t('confirmNewPasswordPlaceholder')}" style="margin-bottom: 10px;">
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn" onclick="changePasswordSubmit()" style="background: #ffb703; color: #120c18; height: 38px;">${t('changePasswordSubmitBtn')}</button>
+                        <button class="action-btn" onclick="document.getElementById('changePasswordModal').remove()" style="background: #4a3852; height: 38px;">${t('close')}</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function changePasswordSubmit() {
+            const newPassword = document.getElementById('newPasswordInput')?.value.trim();
+            const confirmPassword = document.getElementById('confirmNewPasswordInput')?.value.trim();
+
+            if (!newPassword || !confirmPassword) {
+                showToast('notifications.error_generic', 'error');
+                return;
+            }
+            if (newPassword.length < 6) {
+                showToast('notifications.password_too_short', 'error');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showToast('notifications.password_mismatch', 'error');
+                return;
+            }
+            if (!supabaseClient) return;
+
+            const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+            if (error) {
+                showToast('notifications.error_generic', 'error');
+            } else {
+                showToast('notifications.password_changed_success', 'success');
+                const m = document.getElementById('changePasswordModal');
                 if (m) m.remove();
             }
         }
